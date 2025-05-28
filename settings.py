@@ -1,7 +1,8 @@
 import sys
 import pygame
 from helper import resource_path
-from sounds import toggle_music, play_sound_effect, update_sound_fx_volume
+from sounds import play_sound_effect, update_sound_fx_volume
+from config import VERSION
 
 font = pygame.font.Font(resource_path('assets/font/font.ttf'), 40)
 WIDTH = 800
@@ -83,6 +84,9 @@ def draw_settings_panel(screen, rect):
     title = font.render('Settings', True, (255, 255, 255))
     title_rect = title.get_rect(center=(rect.centerx, rect.top - 20))
     screen.blit(title, title_rect)
+
+    version_text = font.render(VERSION, True, (255, 255, 255))
+    screen.blit(version_text, (WIDTH - version_text.get_width() - 20, 20))
 
 def handle_settings_events(state):
     """

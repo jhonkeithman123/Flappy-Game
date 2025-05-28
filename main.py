@@ -6,9 +6,10 @@ import sys
 import play
 import settings
 from play import run_game
-from settings import draw_settings_panel, handle_settings_events
+from settings import handle_settings_events
 from helper import resource_path
 from sounds import init_sounds, toggle_music, play_sound_effect
+from config import VERSION
 
 pygame.init()
 init_sounds()
@@ -16,7 +17,7 @@ init_sounds()
 WIDTH, HEIGHT = 800, 600
 angle = 15
 padding = 20
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game')
 
 BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
@@ -59,7 +60,11 @@ def draw_menu():
     SCREEN.blit(play_btn_img, play_btn_rect)
     SCREEN.blit(exit_btn_img, exit_btn_rect)
     SCREEN.blit(setting_btn_img, setting_btn_rect)
-    pygame.display.update()
+
+    version_text = FONT.render(VERSION, True, (255, 255, 255))
+    SCREEN.blit(version_text, (WIDTH - version_text.get_width() - 20, 20))
+
+    pygame.display.flip()
 
 def main_menu(state):
     """

@@ -17,6 +17,7 @@ flap_sound = pygame.mixer.Sound(resource_path('assets/sounds/flap.mp3'))
 score_sound = pygame.mixer.Sound(resource_path('assets/sounds/score.mp3'))
 slap_sound = pygame.mixer.Sound(resource_path('assets/sounds/slap.mp3'))
 death_sound = pygame.mixer.Sound(resource_path('assets/sounds/death.mp3'))
+gameover_sound = pygame.mixer.Sound(resource_path('assets/sounds/gameover-sound.mp3'))
 
 sound_fx_volume = 0.5
 
@@ -75,6 +76,13 @@ def play_death_sound():
     if sound_enabled:
         death_sound.stop()
         death_sound.play()
+
+def play_gameover_sound():
+    """Plays the gameover sound if sound is enabled."""
+    gameover_sound.set_volume(sound_fx_volume)
+    if sound_enabled:
+        gameover_sound.stop()
+        gameover_sound.play()
 
 def toggle_sounds():
     """Plays the scoring effect on or off."""

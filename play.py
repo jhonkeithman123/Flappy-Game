@@ -4,18 +4,20 @@ import sys
 import random
 from saves import get_high_score, save_high_score
 from helper import resource_path
-from sounds import play_flap_sound, play_death_sound
+from sounds import play_flap_sound, play_death_sound, play_gameover_sound
+from config import VERSION
 
 pygame.init()
 
 WIDTH, HEIGHT = 800, 600
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.DOUBLEBUF, vsync=True)
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game - Play')
 
 BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
 BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
 font = pygame.font.Font(resource_path('assets/font/font.ttf'), 48)
+fontTxt = pygame.font.Font(resource_path('assets/font/font.ttf'), 25)
 
 bird_img = pygame.image.load(resource_path("assets/image/bird.png")).convert_alpha()
 bird_img = pygame.transform.scale(bird_img, (70, 50))
@@ -38,6 +40,34 @@ pipe_speed = 4
 scroll_speed = 2
 pipe_frequency = 1600
 
+chain1 = pygame.image.load(resource_path("assets/image/chain.png")).convert_alpha()
+chain1 = pygame.transform.scale(chain1, (50, 90))
+chain1_rect = chain1.get_rect(center=(WIDTH // 2 - 100, HEIGHT // 2 - 275))
+
+chain2 = pygame.image.load(resource_path("assets/image/chain.png")).convert_alpha()
+chain2 = pygame.transform.scale(chain2, (50, 90))
+chain2_rect = chain2.get_rect(center=(WIDTH // 2 + 100, HEIGHT // 2 - 275))
+
+retry_img = pygame.image.load(resource_path("assets/image/retry.png")).convert_alpha()
+retry_img = pygame.transform.scale(retry_img, (130, 60))
+retry_img_rect = retry_img.get_rect(center=(WIDTH // 2 + 80, HEIGHT // 2 + 240))
+
+menu_img = pygame.image.load(resource_path("assets/image/Menu.png")).convert_alpha()
+menu_img = pygame.transform.scale(menu_img, (130, 60))
+menu_img_rect = menu_img.get_rect(center=(WIDTH // 2 - 80, HEIGHT // 2 + 240))
+
+retry_label = fontTxt.render("Retry Button", True, (0, 0, 0))
+menu_label = fontTxt.render("Menu Button", True, (0, 0, 0))
+
+retry_label_rect = retry_label.get_rect(center=(retry_img_rect.centerx, retry_img_rect.top + 73))
+menu_label_rect = menu_label.get_rect(center=(menu_img_rect.centerx, menu_img_rect.top + 73))
+
+gameover_platform_img = pygame.image.load(resource_path("assets/image/gameoverPlat.png")).convert_alpha()
+platfrom_width = int(WIDTH * 0.6)
+platform_height = int(platfrom_width * (gameover_platform_img.get_height() / gameover_platform_img.get_width()))
+gameover_platform_img = pygame.transform.scale(gameover_platform_img, (platfrom_width - 130, platform_height - 250))
+gameover_platform_rect = gameover_platform_img.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 30))
+
 pipes = []
 SPAWNPIPE = pygame.USEREVENT
 pygame.time.set_timer(SPAWNPIPE, pipe_frequency)
@@ -59,9 +89,9 @@ def create_pipe(score=0):
     )
     return {"top": top_pipe, "bottom": bottom_pipe, "scored": False}
 
-def move_pipes(pipes):
+def move_pipes(tubo):
     new_pipes = []
-    for pipe in pipes:
+    for pipe in tubo:
         pipe["top"].centerx -= pipe_speed
         pipe["bottom"].centerx -= pipe_speed
         if pipe["top"].right > -pipe_width:
@@ -69,8 +99,8 @@ def move_pipes(pipes):
     return new_pipes
 
 
-def draw_pipes(pipes):
-    for pipe in pipes:
+def draw_pipes(tubo):
+    for pipe in tubo:
         SCREEN.blit(pipe_top_img, pipe["top"])
         SCREEN.blit(pipe_bottom_img, pipe["bottom"])
 
@@ -83,20 +113,55 @@ def reset_game():
     bg_x2 = WIDTH
     pygame.time.set_timer(SPAWNPIPE, pipe_frequency)
 
-def draw_gameover():
-    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    overlay.fill((0, 0, 0, 180))
-    SCREEN.blit(overlay, (0, 0))
+def draw_gameover(score):
+    SCREEN.blit(chain1, chain1_rect)
+    SCREEN.blit(chain2, chain2_rect)
+    SCREEN.blit(gameover_platform_img, gameover_platform_rect)
 
-    game_over_text = font.render("Game Over", True, (255, 0, 0))
-    retry_text = font.render("Press R or SPACE to Retry, Q to Quit, M for Menu", True, (255, 255, 255))
+    text_x = gameover_platform_rect.centerx
+    text_y = gameover_platform_rect.top + 30
+    game_over_text = font.render("Game Over", True, (0, 0, 0))
+    text_rect = game_over_text.get_rect(center=(text_x, text_y))
+    SCREEN.blit(game_over_text, text_rect)
 
-    SCREEN.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2 - 60))
-    SCREEN.blit(retry_text, (WIDTH // 2 - retry_text.get_width() // 2, HEIGHT // 2))
+    score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+    high_score_text = font.render(f"High Score: {get_high_score()}", True, (0, 0, 0))
+
+    score_rect = score_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 90))
+    high_score_rect = high_score_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 135))
+
+    retry_text = fontTxt.render("'R' or Retry Button - Retry", True, (0, 0, 0))
+    menu_text = fontTxt.render("'M' or Menu Button - Menu", True, (0, 0, 0))
+    quit_text = fontTxt.render("'Q' - Quit (PC only)", True, (0, 0, 0))
+
+    retry_rect = retry_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 180))
+    menu_rect = menu_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 220))
+    quit_rect = quit_text.get_rect(center=(gameover_platform_rect.centerx - 35, gameover_platform_rect.top + 260))
+
+    SCREEN.blit(score_text, score_rect)
+    SCREEN.blit(high_score_text, high_score_rect)
+
+    SCREEN.blit(retry_img, retry_img_rect)
+    SCREEN.blit(menu_img, menu_img_rect)
+
+    SCREEN.blit(retry_label, retry_label_rect)
+    SCREEN.blit(menu_label, menu_label_rect)
+
+    SCREEN.blit(retry_text, retry_rect)
+    SCREEN.blit(menu_text, menu_rect)
+    SCREEN.blit(quit_text, quit_rect)
 
 def draw_background():
     SCREEN.blit(BG, (bg_x1, 0))
     SCREEN.blit(BG, (bg_x2, 0))
+
+def draw_version():
+    transparent_surface = pygame.Surface((200, 50), pygame.SRCALPHA)
+    transparent_surface.fill((0, 0, 0, 150))
+
+    version_text = font.render(VERSION, True, (255, 255, 255))
+    transparent_surface.blit(version_text, (version_text.get_width() - 25, 0))
+    SCREEN.blit(transparent_surface, (WIDTH - transparent_surface.get_width() - 20, 20))
 
 def rotate_bird():
     angle = max(-30, min(30, -bird_vel * 3))
@@ -126,6 +191,13 @@ def run_game(state):
     countdown_font = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
     countdown = 3
     countdown_start = pygame.time.get_ticks()
+
+    gameover_y = -platform_height
+    fall_speed = 10
+    gameover_anim_done = False
+
+    chain1_offset = chain1_rect.y - gameover_platform_rect.y
+    chain2_offset = chain2_rect.y - gameover_platform_rect.y
 
     while countdown > 0:
         clock.tick(60)
@@ -162,6 +234,20 @@ def run_game(state):
                     paused = False
                     jump_resumed = True
 
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if game_over:
+                    if retry_img_rect.collidepoint(event.pos):
+                        reset_game()
+                        game_over = False
+                        score = 0
+                        pygame.mixer.music.play(-1)
+
+                        gameover_anim_done = False
+
+                    elif menu_img_rect.collidepoint(event.pos):
+                        state["current"] = "menu"
+                        return state
+
             if not game_over and not paused:
                     if event.type == pygame.KEYDOWN and not jump_resumed and event.key == pygame.K_SPACE:
                         bird_vel = flap_strength
@@ -178,6 +264,7 @@ def run_game(state):
                         reset_game()
                         game_over = False
                         score = 0
+                        pygame.mixer.music.play(-1)
                     elif event.key == pygame.K_m:
                         state["current"] = "menu"
                         return state
@@ -187,8 +274,7 @@ def run_game(state):
 
         if not game_over and not paused:
             jump_resumed = False
-            pipe_speed, scroll_speed, pipe_frequency = update_game_speed(score, pipe_speed, scroll_speed,
-                                                                             pipe_frequency, SPAWNPIPE)
+            pipe_speed, scroll_speed, pipe_frequency = update_game_speed(score, pipe_frequency, SPAWNPIPE)
             bg_x1 -= scroll_speed
             bg_x2 -= scroll_speed
             if bg_x1 <= -WIDTH:
@@ -203,13 +289,21 @@ def run_game(state):
             score = update_score(bird_rect, pipes, score)
 
             if check_collision(bird_rect, pipes):
-                play_death_sound()
+                if score >= 30 or (get_high_score() - score) <= 5:
+                    pygame.mixer.music.stop()
+                    play_death_sound()
+                    play_gameover_sound()
+                else:
+                    play_death_sound()
                 print("Collision detected!")
-                game_over = True
                 save_high_score(score)
+                pygame.time.delay(1500)
+
+                game_over = True
 
         draw_background()
         draw_pipes(pipes)
+        draw_version()
         rotate_bird()
 
         score_surface = font.render(f"Score: {score} ", True, (255, 255, 255))
@@ -224,7 +318,28 @@ def run_game(state):
         SCREEN.blit(high_score_surface, (10, 10))
 
         if game_over:
-            draw_gameover()
+            if not gameover_anim_done:
+                while gameover_y < gameover_platform_rect.y:
+                    clock.tick(60)
+                    gameover_y += fall_speed
+                    draw_background()
+                    draw_pipes(pipes)
+                    draw_version()
+                    rotate_bird()
+
+                    current_chain1_y = gameover_y + chain1_offset
+                    current_chain2_y = gameover_y + chain2_offset
+
+                    SCREEN.blit(chain1, (chain1_rect.x, current_chain1_y))
+                    SCREEN.blit(chain2, (chain2_rect.x, current_chain2_y))
+
+                    SCREEN.blit(gameover_platform_img, (gameover_platform_rect.x, gameover_y))
+                    pygame.display.flip()
+
+                gameover_anim_done = True
+
+            draw_gameover(score)
+
         pygame.display.flip()
 
     return state
