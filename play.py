@@ -169,6 +169,11 @@ def rotate_bird():
     rotated_bird_rect = rotated_bird.get_rect(center=bird_rect.center)
     SCREEN.blit(rotated_bird, rotated_bird_rect)
 
+def calculate_chain_offsets():
+    chain1_offset = chain1_rect.y - gameover_platform_rect.y
+    chain2_offset = chain2_rect.y - gameover_platform_rect.y
+    return chain1_offset, chain2_offset
+
 def run_game(state):
     """
     Runs the main game loop.
@@ -196,8 +201,7 @@ def run_game(state):
     fall_speed = 10
     gameover_anim_done = False
 
-    chain1_offset = chain1_rect.y - gameover_platform_rect.y
-    chain2_offset = chain2_rect.y - gameover_platform_rect.y
+    chain1_offset, chain2_offset = calculate_chain_offsets()
 
     while countdown > 0:
         clock.tick(60)
@@ -242,6 +246,7 @@ def run_game(state):
                         score = 0
                         pygame.mixer.music.play(-1)
 
+                        gameover_y = -platform_height
                         gameover_anim_done = False
 
                     elif menu_img_rect.collidepoint(event.pos):
@@ -265,6 +270,8 @@ def run_game(state):
                         game_over = False
                         score = 0
                         pygame.mixer.music.play(-1)
+                        gameover_y = -platform_height
+                        gameover_anim_done = False
                     elif event.key == pygame.K_m:
                         state["current"] = "menu"
                         return state
@@ -300,6 +307,8 @@ def run_game(state):
                 pygame.time.delay(1500)
 
                 game_over = True
+                gameover_y = -platform_height
+                gameover_anim_done = False
 
         draw_background()
         draw_pipes(pipes)
@@ -339,6 +348,8 @@ def run_game(state):
                 gameover_anim_done = True
 
             draw_gameover(score)
+
+            pygame.event.clear()
 
         pygame.display.flip()
 
