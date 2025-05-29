@@ -19,7 +19,7 @@ BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 font = pygame.font.Font(resource_path('assets/font/font.ttf'), 48)
 fontTxt = pygame.font.Font(resource_path('assets/font/font.ttf'), 25)
 
-bird_img = pygame.image.load(resource_path("assets/image/bird.png")).convert_alpha()
+bird_img = pygame.image.load(resource_path("assets/image/birds/bird.png")).convert_alpha()
 bird_img = pygame.transform.scale(bird_img, (70, 50))
 bird_rect = bird_img.get_rect(center=(150, HEIGHT // 2))
 bird_vel = 0

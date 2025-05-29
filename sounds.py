@@ -10,7 +10,7 @@ def init_sounds():
     """
     music_path = resource_path('assets/sounds/bg-music.mp3')
     pygame.mixer.music.load(music_path)
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(0.4)
     pygame.mixer.music.play(-1)
 
 flap_sound = pygame.mixer.Sound(resource_path('assets/sounds/flap.mp3'))

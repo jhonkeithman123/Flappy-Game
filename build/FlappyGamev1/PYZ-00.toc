@@ -1020,6 +1020,7 @@
    'C:\\Users\\Keith\\PycharmProjects\\flappy\\.venv\\Lib\\site-packages\\setuptools\\windows_support.py',
    'PYMODULE'),
   ('shlex', 'C:\\ProgramData\\miniconda3\\Lib\\shlex.py', 'PYMODULE'),
+  ('shop', 'C:\\Users\\Keith\\PycharmProjects\\flappy\\shop.py', 'PYMODULE'),
   ('shutil', 'C:\\ProgramData\\miniconda3\\Lib\\shutil.py', 'PYMODULE'),
   ('signal', 'C:\\ProgramData\\miniconda3\\Lib\\signal.py', 'PYMODULE'),
   ('site', 'C:\\ProgramData\\miniconda3\\Lib\\site.py', 'PYMODULE'),
