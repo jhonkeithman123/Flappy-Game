@@ -1,11 +1,12 @@
 import pygame
 from helper import resource_path, character_images
-from saves import get_coins, save_coins
-from play import clock
+from saves import get_coins, save_coins, get_character, save_character, get_owned_characters, save_owned_characters
 import sys
+import os
+from config import VERSION, WIDTH, HEIGHT
 
-WIDTH, HEIGHT = 800, 600
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.DOUBLEBUF)
+os.environ["SDL_RENDER_DRIVER"] = "software"
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 
 FONT = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
 fontTxt = pygame.font.Font(resource_path("assets/font/font.ttf"), 20)
@@ -30,6 +31,8 @@ character_costs = {
     "Navy": 25
 }
 player_coins = get_coins()
+owned_characters = get_owned_characters()
+selected_character = get_character()
 
 def confirm_purchase(name, cost):
     """
@@ -116,6 +119,23 @@ def draw_shop(scroll_offset):
 
     pygame.display.flip()
 
+
+def draw_message(message):
+
+    plat = shop_ui.copy()
+    plat_width = int(shop_ui_rect.width * 0.5)
+    plat_height = int(shop_ui_rect.height * 0.5)
+    plat = pygame.transform.scale(plat, (plat_width, plat_height))
+    plat_rect = plat.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+
+    SCREEN.blit(plat, plat_rect)
+    txtmsg = fontTxt.render(message, True, (255, 255, 255))
+    txtmsg_rect = txtmsg.get_rect(center=(plat_rect.centerx, plat_rect.top + 80))
+    SCREEN.blit(txtmsg, txtmsg_rect)
+
+    pygame.display.flip()
+    pygame.time.wait(2000)
+
 def character_shop(state):
     global selected_character, owned_characters, player_coins
 
@@ -124,7 +144,7 @@ def character_shop(state):
     running = True
 
     smoothing_factor = 5.0
-
+    clock = pygame.time.Clock()
     while running:
         dt = clock.tick(60) / 1000.0
 
@@ -179,18 +199,22 @@ def character_shop(state):
                             if character_rect.collidepoint(local_click):
                                 if name in owned_characters:
                                     selected_character = name
+                                    save_character(selected_character)
                                 else:
-                                    if player_coins >= character_costs[name]:
+                                    if player_coins >= character_costs[name] and confirm_purchase(name, character_costs[name]):
                                         if confirm_purchase(name, character_costs[name]):
                                             player_coins -= character_costs[name]
                                             owned_characters.add(name)
                                             selected_character = name
+
+                                            save_coins(player_coins)
+                                            save_owned_characters(owned_characters)
+                                            save_character(selected_character)
+                                            draw_message("Success!")
                                         else:
                                             print("User declined purchase!!")
-                                            pass
                                     else:
                                         print("Insufficient coins!!")
-                                        pass
 
         min_scroll = -100 * (len(character_images) - 3)
         target_scroll = max(min(target_scroll, 25), min_scroll)

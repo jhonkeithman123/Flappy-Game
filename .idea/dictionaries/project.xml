@@ -4,6 +4,7 @@
       <w>centerx</w>
       <w>gameover</w>
       <w>spawnpipe</w>
+      <w>txtmsg</w>
     </words>
   </dictionary>
 </component>

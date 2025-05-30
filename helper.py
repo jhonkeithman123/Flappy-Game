@@ -3,7 +3,8 @@ import pygame
 import sys
 
 pygame.init()
-SCREEN = pygame.display.set_mode((800, 600), pygame.SCALED | pygame.DOUBLEBUF)
+os.environ["SDL_RENDER_DRIVER"] = "software"
+SCREEN = pygame.display.set_mode((800, 600), pygame.DOUBLEBUF)
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """

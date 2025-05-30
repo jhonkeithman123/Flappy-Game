@@ -1,6 +1,9 @@
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
 
+from saves import reset_save_directory_config, get_user_save_directory, get_character
+
+warnings.filterwarnings("ignore", category=UserWarning)
+import os
 import pygame
 import sys
 from shop import character_shop, selected_character
@@ -8,15 +11,15 @@ from play import run_game
 from settings import handle_settings_events
 from helper import resource_path, character_images
 from sounds import init_sounds
-from config import VERSION
+from config import VERSION, WIDTH, HEIGHT
 
 pygame.init()
 init_sounds()
 
-WIDTH, HEIGHT = 800, 600
 angle = 15
 padding = 20
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.DOUBLEBUF)
+os.environ["SDL_RENDER_DRIVER"] = "software"
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game')
 
 BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
@@ -37,7 +40,7 @@ play_btn_img = pygame.transform.scale(play_btn_img, (140, 55))
 exit_btn_img = pygame.transform.scale(exit_btn_img, (140, 55))
 setting_btn_img = pygame.transform.scale(setting_btn_img, (50, 50))
 
-character_image = pygame.transform.scale(character_images[selected_character], (80, 60))
+character_image = pygame.transform.scale(character_images[get_character()], (80, 60))
 character_model_rotated = pygame.transform.rotate(character_image, angle)
 character_model_rect = character_model_rotated.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 145))
 
@@ -64,6 +67,9 @@ def draw_menu():
     SCREEN.blit(BG, (bg_x, 0))
     SCREEN.blit(BG, (bg_x + WIDTH, 0))
 
+    character_image = pygame.transform.scale(character_images[get_character()], (80, 60))
+    character_model_rotated = pygame.transform.rotate(character_image, angle)
+    character_model_rect = character_model_rotated.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 145))
     SCREEN.blit(character_model_rotated, character_model_rect)
 
     title_text = FONT.render("Flappy Game", True, (255, 255, 255))
@@ -125,7 +131,9 @@ def main_menu(state):
         clock.tick(60)
     return state
 
-def main_loop():
+if __name__ == "__main__":
+    user_save_directory = get_user_save_directory()
+    # reset_save_directory_config()
     state = {"current": "menu"}
     while True:
         if state["current"] == "menu":
@@ -133,12 +141,10 @@ def main_loop():
         elif state["current"] == "playing":
             state = run_game(state)
         elif state["current"] == "settings":
-            state = handle_settings_events(state)
+            state = handle_settings_events(state, save_directory=user_save_directory)
         elif state["current"] == "gameover":
             state["current"] = "menu"
         elif state["current"] == "shop":
             state = character_shop(state)
         else:
             state["current"] = "menu"
-
-main_loop()

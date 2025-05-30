@@ -1,0 +1,31 @@
+@echo off
+echo Cleaning previous build artifacts...
+
+rem Remove the dist folder if it exists
+if exist "dist" (
+    rd /s /q "dist"
+)
+
+rem Remove build folder if it exists
+if exist "build" (
+    rd /s /q "build"
+)
+
+rem Remove the spec files if it exists
+if exist "main.spec" (
+    del /f /q "main.spec"
+)
+
+echo Building the executable...
+
+pyinstaller --onefile --windowed --name "FlappyGamev1" --add-data "assets;assets" main.py
+
+if %ERRORLEVEL% neq 0 (
+    echo Build failed!
+    pause
+    exit \b %ERRORLEVEL%
+) else (
+    echo Build succeeded!
+)
+
+pause

@@ -2,15 +2,17 @@ from game_logic import check_collision, update_score, get_pipe_gap, update_game_
 import pygame
 import sys
 import random
-from saves import get_high_score, save_high_score
-from helper import resource_path
+import os
+
+from saves import get_high_score, save_high_score, get_character
+from helper import resource_path, character_images
 from sounds import play_flap_sound, play_death_sound, play_gameover_sound
-from config import VERSION
+from config import VERSION, WIDTH, HEIGHT
 
 pygame.init()
 
-WIDTH, HEIGHT = 800, 600
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SCALED | pygame.DOUBLEBUF)
+os.environ["SDL_RENDER_DRIVER"] = "software"
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game - Play')
 
 BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
@@ -19,8 +21,7 @@ BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 font = pygame.font.Font(resource_path('assets/font/font.ttf'), 48)
 fontTxt = pygame.font.Font(resource_path('assets/font/font.ttf'), 25)
 
-bird_img = pygame.image.load(resource_path("assets/image/birds/bird.png")).convert_alpha()
-bird_img = pygame.transform.scale(bird_img, (70, 50))
+bird_img = pygame.transform.scale(character_images[get_character()], (70, 50))
 bird_rect = bird_img.get_rect(center=(150, HEIGHT // 2))
 bird_vel = 0
 gravity = 0.5
@@ -163,8 +164,11 @@ def draw_version():
     transparent_surface.blit(version_text, (version_text.get_width() - 25, 0))
     SCREEN.blit(transparent_surface, (WIDTH - transparent_surface.get_width() - 20, 20))
 
-def rotate_bird():
+def rotate_bird(bird_rect):
     angle = max(-30, min(30, -bird_vel * 3))
+    old_center = bird_rect.center
+    bird_img = pygame.transform.scale(character_images[get_character()], (70, 50))
+    bird_rect = bird_img.get_rect(center=(old_center))
     rotated_bird = pygame.transform.rotozoom(bird_img, angle, 1)
     rotated_bird_rect = rotated_bird.get_rect(center=bird_rect.center)
     SCREEN.blit(rotated_bird, rotated_bird_rect)
@@ -313,7 +317,7 @@ def run_game(state):
         draw_background()
         draw_pipes(pipes)
         draw_version()
-        rotate_bird()
+        rotate_bird(bird_rect)
 
         score_surface = font.render(f"Score: {score} ", True, (255, 255, 255))
         SCREEN.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 20))
@@ -334,7 +338,7 @@ def run_game(state):
                     draw_background()
                     draw_pipes(pipes)
                     draw_version()
-                    rotate_bird()
+                    rotate_bird(bird_rect)
 
                     current_chain1_y = gameover_y + chain1_offset
                     current_chain2_y = gameover_y + chain2_offset
