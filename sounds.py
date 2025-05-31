@@ -18,6 +18,7 @@ score_sound = pygame.mixer.Sound(resource_path('assets/sounds/score.mp3'))
 slap_sound = pygame.mixer.Sound(resource_path('assets/sounds/slap.mp3'))
 death_sound = pygame.mixer.Sound(resource_path('assets/sounds/death.mp3'))
 gameover_sound = pygame.mixer.Sound(resource_path('assets/sounds/gameover-sound.mp3'))
+coin_sound = pygame.mixer.Sound(resource_path("assets/sounds/coin.mp3"))
 
 sound_fx_volume = 0.5
 
@@ -48,6 +49,7 @@ def update_sound_fx_volume(volume):
     score_sound.set_volume(volume)
     death_sound.set_volume(volume)
     slap_sound.set_volume(volume)
+    coin_sound.set_volume(volume)
 
 def play_flap_sound():
     """Plays the flap sound if sound is enabled."""
@@ -62,6 +64,12 @@ def play_score_sound():
     if sound_enabled:
         score_sound.stop()
         score_sound.play()
+
+def play_coin_collect_sound():
+    coin_sound.set_volume(sound_fx_volume)
+    if sound_enabled:
+        coin_sound.stop()
+        coin_sound.play()
 
 def play_slap_sound():
     """Plays the slap sound if sound is enabled."""

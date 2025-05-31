@@ -112,6 +112,7 @@ def handle_settings_events(state, save_directory):
 
     is_muted = False
     previous_volume = 0.5
+    previous_fx_volume = 0.5
 
     volume_slider = Slider(300, 250, 200, min_value=0, max_value=1, default_value=0.5)
     sound_fx_slider = Slider(300, 340, 200, min_value=0, max_value=1, default_value=0.5)
@@ -119,12 +120,18 @@ def handle_settings_events(state, save_directory):
     settings = load_settings(save_directory)
     if settings:
         volume_slider.value = settings.get("music_volume", previous_volume)
-        sound_fx_slider.value = settings.get("sound_fx_volume", 0.5)
+        sound_fx_slider.value = settings.get("sound_fx_volume", previous_fx_volume)
         is_muted = settings.get("is_muted", False)
+
+        volume_slider.knob_x = volume_slider.x + (volume_slider.value * volume_slider.width)
+        sound_fx_slider.knob_x = sound_fx_slider.x + (sound_fx_slider.value * sound_fx_slider.width)
+
         if is_muted:
             pygame.mixer.music.set_volume(0)
+            update_sound_fx_volume(0)
         else:
             pygame.mixer.music.set_volume(volume_slider.value)
+            update_sound_fx_volume(sound_fx_slider.value)
 
     while running:
         clock.tick(60)
@@ -139,19 +146,51 @@ def handle_settings_events(state, save_directory):
                 elif event.key == pygame.K_m:
                     is_muted = not is_muted
                     if is_muted:
-                        previous_volume = pygame.mixer.music.get_volume()
+                        previous_volume = volume_slider.value
+                        previous_fx_volume = sound_fx_slider.value
+
+                        volume_slider.value = 0
+                        sound_fx_slider.value = 0
+
+                        volume_slider.knob_x = volume_slider.x
+                        sound_fx_slider.knob_x = sound_fx_slider.x
+
                         pygame.mixer.music.set_volume(0)
+                        update_sound_fx_volume(0)
                     else:
+                        volume_slider.value = previous_volume
+                        sound_fx_slider.value = previous_fx_volume
+
+                        volume_slider.knob_x = volume_slider.x + previous_volume * volume_slider.width
+                        sound_fx_slider.knob_x = sound_fx_slider.x + previous_volume * volume_slider.width
+
                         pygame.mixer.music.set_volume(previous_volume)
+                        update_sound_fx_volume(previous_fx_volume)
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_pos = event.pos
                 if mute_button_rect.collidepoint(mouse_pos):
                     is_muted = not is_muted
                     if is_muted:
-                        previous_volume = pygame.mixer.music.get_volume()
+                        previous_volume = volume_slider.value
+                        previous_fx_volume = sound_fx_slider.value
+
+                        volume_slider.value = 0
+                        sound_fx_slider.value = 0
+
+                        volume_slider.knob_x = volume_slider.x
+                        sound_fx_slider.knob_x = sound_fx_slider.x
+
                         pygame.mixer.music.set_volume(0)
+                        update_sound_fx_volume(0)
                     else:
+                        volume_slider.value = previous_volume
+                        sound_fx_slider.value = previous_fx_volume
+
+                        volume_slider.knob_x = volume_slider.x + previous_volume * volume_slider.width
+                        sound_fx_slider.knob_x = sound_fx_slider.x + previous_volume * volume_slider.width
+
                         pygame.mixer.music.set_volume(previous_volume)
+                        update_sound_fx_volume(previous_fx_volume)
                 elif close_img_rect.collidepoint(mouse_pos):
                     state["current"] = "menu"
                     running = False

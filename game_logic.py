@@ -1,22 +1,38 @@
 import pygame
-from sounds import play_score_sound, play_slap_sound
+
+from saves import get_coins, save_coins
+from sounds import play_score_sound, play_slap_sound, play_coin_collect_sound
+
 
 # Checks for collision
 def check_collision(bird_rect, pipes):
-    collisio_detected = False
+    """
+    Checks for collisions with pipes and boundaries (game over collisions)
+    and also checks for coin collections.
+
+    Returns a tuple:
+        (game_over: bool, coins_collected: int)
+    """
+    game_over = False
+    coins_collected = 0
 
     for pipe in pipes:
         if bird_rect.colliderect(pipe["top"]) or bird_rect.colliderect(pipe["bottom"]):
-            collisio_detected = True
+            game_over = True
+
+        if not pipe.get("coin_collected", False) and bird_rect.colliderect(pipe["coin"]):
+            coins_collected += 1
+            pipe["coin_collected"] = True
+            print("Coin collected! Total coins:", coins_collected)
+            play_coin_collect_sound()
 
     if bird_rect.top <= 0 or bird_rect.bottom >= 580:
-        collisio_detected = True
+        game_over = True
 
-    if collisio_detected:
+    if game_over:
         play_slap_sound()
-        return True
 
-    return False
+    return game_over, coins_collected
 
 # for giving points
 def update_score(bird_rect, pipes, score):

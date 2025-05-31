@@ -1,5 +1,5 @@
 
-VERSION = "v1.1.0"
+VERSION = "v1.1.2"
 
 WIDTH = 800
 HEIGHT = 600

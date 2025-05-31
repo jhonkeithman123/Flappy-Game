@@ -4,12 +4,28 @@ import sys
 import random
 import os
 
-from saves import get_high_score, save_high_score, get_character
+from saves import get_high_score, save_high_score, get_character, get_user_save_directory, load_settings, get_coins, \
+    save_coins
 from helper import resource_path, character_images
-from sounds import play_flap_sound, play_death_sound, play_gameover_sound
+from sounds import play_flap_sound, play_death_sound, play_gameover_sound, update_sound_fx_volume, \
+    play_coin_collect_sound
 from config import VERSION, WIDTH, HEIGHT
 
 pygame.init()
+
+save_directory = get_user_save_directory()
+settings = load_settings(save_directory)
+
+is_muted = settings.get("is_muted", False)
+volume = settings.get("music_volume", 0.5)
+fx_volume = settings.get("sound_fx_volume", 0.5)
+
+if is_muted:
+    pygame.mixer.music.set_volume(0)
+    update_sound_fx_volume(0)
+else:
+    pygame.mixer.music.set_volume(volume)
+    update_sound_fx_volume(fx_volume)
 
 os.environ["SDL_RENDER_DRIVER"] = "software"
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
@@ -18,7 +34,18 @@ pygame.display.set_caption('Flappy Game - Play')
 BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
 BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
+coin_size = (30, 30)
+coin_img = pygame.image.load(resource_path("assets/image/coin.png")).convert_alpha()
+coin_img = pygame.transform.scale(coin_img, coin_size)
+
+coin_flip_img = pygame.image.load(resource_path("assets/image/coin-flip.png")).convert_alpha()
+coin_flip_img = pygame.transform.scale(coin_flip_img, coin_size)
+
+coin_images = [coin_img, coin_flip_img]
+
 font = pygame.font.Font(resource_path('assets/font/font.ttf'), 48)
+coinFont = pygame.font.Font(resource_path("assets/font/font.ttf"), 37)
+coinsFont = pygame.font.Font(resource_path("assets/font/font.ttf"), 24)
 fontTxt = pygame.font.Font(resource_path('assets/font/font.ttf'), 25)
 
 bird_img = pygame.transform.scale(character_images[get_character()], (70, 50))
@@ -82,28 +109,53 @@ def create_pipe(score=0):
     margin = 50
     current_gap = get_pipe_gap(score)
     center_y =random.randint(pipe_gap // 2 + margin, HEIGHT - pipe_gap // 2 - margin)
-    top_pipe = pipe_top_img.get_rect(
-        midbottom=(WIDTH + 100, center_y - current_gap // 2)
-    )
-    bottom_pipe = pipe_bottom_img.get_rect(
-        midtop=(WIDTH + 100, center_y + current_gap // 2)
-    )
-    return {"top": top_pipe, "bottom": bottom_pipe, "scored": False}
+    coin_y = 0
+    offset = 10
 
-def move_pipes(tubo):
+    top_pipe = pipe_top_img.get_rect(midbottom=(WIDTH + 100, center_y - current_gap // 2))
+    bottom_pipe = pipe_bottom_img.get_rect(midtop=(WIDTH + 100, center_y + current_gap // 2))
+
+    placement = random.choice(["center", "top", "bottom", "side"])
+    if placement == "center":
+        coin_y = center_y
+    elif placement == "top":
+        coin_y = center_y - current_gap / 4 + offset + 10
+    elif placement == "bottom":
+        coin_y = center_y + current_gap / 4 - offset - 7
+    elif placement == "side":
+        coin_y = random.choice([center_y - current_gap / 2 + offset, center_y + current_gap / 2 - offset])
+
+    coin_rect = coin_img.get_rect(center=(WIDTH + 100, int(coin_y)))
+
+    return {
+        "top": top_pipe,
+        "bottom": bottom_pipe,
+        "coin": coin_rect,
+        "scored": False,
+        "coin_collected": False
+    }
+
+def move_pipes(pipe_list):
     new_pipes = []
-    for pipe in tubo:
+    for pipe in pipe_list:
         pipe["top"].centerx -= pipe_speed
         pipe["bottom"].centerx -= pipe_speed
+        pipe["coin"].centerx -= pipe_speed
         if pipe["top"].right > -pipe_width:
             new_pipes.append(pipe)
     return new_pipes
 
 
-def draw_pipes(tubo):
-    for pipe in tubo:
+def draw_pipes(pipe_list):
+    for pipe in pipe_list:
         SCREEN.blit(pipe_top_img, pipe["top"])
         SCREEN.blit(pipe_bottom_img, pipe["bottom"])
+
+        if not pipe.get("coin_collected", False):
+            frame_interval = 150
+            frame_index = (pygame.time.get_ticks() // frame_interval) % len(coin_images)
+            current_coin_img = coin_images[frame_index]
+            SCREEN.blit(current_coin_img, pipe["coin"])
 
 def reset_game():
     global bird_rect, bird_vel, pipes, bg_x1, bg_x2
@@ -114,7 +166,10 @@ def reset_game():
     bg_x2 = WIDTH
     pygame.time.set_timer(SPAWNPIPE, pipe_frequency)
 
-def draw_gameover(score):
+coins_saved = False
+def draw_gameover(score, coins):
+    global coins_saved
+
     SCREEN.blit(chain1, chain1_rect)
     SCREEN.blit(chain2, chain2_rect)
     SCREEN.blit(gameover_platform_img, gameover_platform_rect)
@@ -125,22 +180,34 @@ def draw_gameover(score):
     text_rect = game_over_text.get_rect(center=(text_x, text_y))
     SCREEN.blit(game_over_text, text_rect)
 
+    player_coin = get_coins()
+    if not coins_saved:
+        total_coins = player_coin + coins
+        save_coins(total_coins)
+        coins_saved = True
+
     score_text = font.render(f"Score: {score}", True, (0, 0, 0))
     high_score_text = font.render(f"High Score: {get_high_score()}", True, (0, 0, 0))
+    coins_text = coinFont.render(f"Coins collected: {coins}", True, (0, 0, 0))
+    total_coin = coinsFont.render(f" Total {player_coin} + {coins} = {player_coin + coins} Coins", True, (0, 0, 0))
 
-    score_rect = score_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 90))
+    score_rect = score_text.get_rect(center=(gameover_platform_rect.centerx - 45, gameover_platform_rect.top + 90))
     high_score_rect = high_score_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 135))
+    coins_text_rect = coins_text.get_rect(center=(gameover_platform_rect.centerx - 5, gameover_platform_rect.top + 180))
+    total_coin_rect = total_coin.get_rect(center=(gameover_platform_rect.centerx - 2, gameover_platform_rect.top + 225))
 
     retry_text = fontTxt.render("'R' or Retry Button - Retry", True, (0, 0, 0))
     menu_text = fontTxt.render("'M' or Menu Button - Menu", True, (0, 0, 0))
     quit_text = fontTxt.render("'Q' - Quit (PC only)", True, (0, 0, 0))
 
-    retry_rect = retry_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 180))
-    menu_rect = menu_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 220))
-    quit_rect = quit_text.get_rect(center=(gameover_platform_rect.centerx - 35, gameover_platform_rect.top + 260))
+    retry_rect = retry_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 270))
+    menu_rect = menu_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 310))
+    quit_rect = quit_text.get_rect(center=(gameover_platform_rect.centerx - 35, gameover_platform_rect.top + 350))
 
     SCREEN.blit(score_text, score_rect)
     SCREEN.blit(high_score_text, high_score_rect)
+    SCREEN.blit(coins_text, coins_text_rect)
+    SCREEN.blit(total_coin, total_coin_rect)
 
     SCREEN.blit(retry_img, retry_img_rect)
     SCREEN.blit(menu_img, menu_img_rect)
@@ -196,6 +263,8 @@ def run_game(state):
     global pipe_speed, scroll_speed, pipe_frequency
 
     reset_game()
+
+    round_coins = 0
 
     countdown_font = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
     countdown = 3
@@ -299,7 +368,13 @@ def run_game(state):
             pipes = move_pipes(pipes)
             score = update_score(bird_rect, pipes, score)
 
-            if check_collision(bird_rect, pipes):
+            collision, coins_found = check_collision(bird_rect, pipes)
+            round_coins += coins_found
+
+            if coins_found > 0:
+                print("Player collected coin")
+
+            if collision:
                 if score >= 30 or (get_high_score() - score) <= 5:
                     pygame.mixer.music.stop()
                     play_death_sound()
@@ -320,7 +395,12 @@ def run_game(state):
         rotate_bird(bird_rect)
 
         score_surface = font.render(f"Score: {score} ", True, (255, 255, 255))
-        SCREEN.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 20))
+        score_rect = score_surface.get_rect(center=(WIDTH // 2, 20 + score_surface.get_height() // 2))
+        SCREEN.blit(score_surface, score_rect)
+
+        coins_text = coinFont.render(f"Coins: {round_coins}", True, (255, 215, 0))
+        coins_rect = coins_text.get_rect(midtop=(WIDTH // 2, score_rect.bottom + 5))
+        SCREEN.blit(coins_text, coins_rect)
 
         if paused:
             pause_text = font.render("PAUSED - Press P or SPACE to Resume", True, (255, 255, 255))
@@ -351,7 +431,7 @@ def run_game(state):
 
                 gameover_anim_done = True
 
-            draw_gameover(score)
+            draw_gameover(score, round_coins)
 
             pygame.event.clear()
 

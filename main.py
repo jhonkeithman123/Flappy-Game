@@ -1,11 +1,10 @@
 import warnings
-
-from saves import reset_save_directory_config, get_user_save_directory, get_character
-
 warnings.filterwarnings("ignore", category=UserWarning)
+
 import os
 import pygame
 import sys
+from saves import reset_save_directory_config, get_user_save_directory, get_character, load_settings
 from shop import character_shop, selected_character
 from play import run_game
 from settings import handle_settings_events
@@ -15,6 +14,17 @@ from config import VERSION, WIDTH, HEIGHT
 
 pygame.init()
 init_sounds()
+
+save_directory = get_user_save_directory()
+settings = load_settings(save_directory)
+
+is_muted = settings.get("is_muted", False)
+volume = settings.get("music_volume", 0.5)
+
+if is_muted:
+    pygame.mixer.music.set_volume(0)
+else:
+    pygame.mixer.music.set_volume(volume)
 
 angle = 15
 padding = 20
