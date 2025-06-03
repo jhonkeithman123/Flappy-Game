@@ -21,10 +21,10 @@ def check_collision(bird_rect, pipes):
             game_over = True
 
         if not pipe.get("coin_collected", False) and bird_rect.colliderect(pipe["coin"]):
+            play_coin_collect_sound()
             coins_collected += 1
             pipe["coin_collected"] = True
             print("Coin collected! Total coins:", coins_collected)
-            play_coin_collect_sound()
 
     if bird_rect.top <= 0 or bird_rect.bottom >= 580:
         game_over = True

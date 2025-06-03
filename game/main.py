@@ -32,17 +32,17 @@ os.environ["SDL_RENDER_DRIVER"] = "software"
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game')
 
-BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
+BG = pygame.image.load(resource_path('../assets/image/background.png')).convert()
 BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
-FONT = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
-font = pygame.font.Font(resource_path("assets/font/font.ttf"), 30)
+FONT = pygame.font.Font(resource_path("../assets/font/font.ttf"), 64)
+font = pygame.font.Font(resource_path("../assets/font/font.ttf"), 30)
 
-play_btn_img = pygame.image.load(resource_path('assets/image/Play.png')).convert_alpha()
-exit_btn_img = pygame.image.load(resource_path('assets/image/Exit.png')).convert_alpha()
-setting_btn_img = pygame.image.load(resource_path('assets/image/Setting.png')).convert_alpha()
+play_btn_img = pygame.image.load(resource_path('../assets/image/Play.png')).convert_alpha()
+exit_btn_img = pygame.image.load(resource_path('../assets/image/Exit.png')).convert_alpha()
+setting_btn_img = pygame.image.load(resource_path('../assets/image/Setting.png')).convert_alpha()
 
-shop_img = pygame.image.load(resource_path('assets/image/shop.png')).convert_alpha()
+shop_img = pygame.image.load(resource_path('../assets/image/shop.png')).convert_alpha()
 shop_img = pygame.transform.scale(shop_img, (50, 50))
 shop_rect = shop_img.get_rect(center=(WIDTH / 2 + 355, HEIGHT / 2))
 
