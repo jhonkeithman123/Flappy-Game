@@ -11,6 +11,7 @@ from settings import handle_settings_events
 from helper import resource_path, character_images
 from sounds import init_sounds
 from config import VERSION, WIDTH, HEIGHT
+from ui import handle_account
 
 pygame.init()
 init_sounds()
@@ -58,6 +59,10 @@ play_btn_rect = play_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 70))
 exit_btn_rect = exit_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 170))
 setting_btn_rect = setting_btn_img.get_rect(bottomleft=(padding, HEIGHT - padding))
 
+account = pygame.image.load(resource_path('../assets/image/account.png')).convert_alpha()
+account = pygame.transform.scale(account, (50, 50))
+account_rect = account.get_rect(center=(exit_btn_rect.right + 285, exit_btn_rect.top + 120))
+
 bg_x = 0
 
 def draw_menu():
@@ -73,6 +78,9 @@ def draw_menu():
 
     setting_text = font.render("Settings", True, (0, 0, 128))
     settings_rect = setting_text.get_rect(center=(setting_btn_rect.centerx + 5, setting_btn_rect.top - 20))
+
+    account_text = font.render("Account", True, (0, 0, 128))
+    account_text_rect = account_text.get_rect(center=(account_rect.centerx - 2, account_rect.top - 20))
 
     SCREEN.blit(BG, (bg_x, 0))
     SCREEN.blit(BG, (bg_x + WIDTH, 0))
@@ -91,6 +99,8 @@ def draw_menu():
     SCREEN.blit(shop_img, shop_rect)
     SCREEN.blit(shop_text, shop_text_rect)
     SCREEN.blit(setting_text, settings_rect)
+    SCREEN.blit(account, account_rect)
+    SCREEN.blit(account_text, account_text_rect)
 
     version_text = FONT.render(VERSION, True, (255, 255, 255))
     SCREEN.blit(version_text, (WIDTH - version_text.get_width() - 20, 20))
@@ -122,6 +132,8 @@ def main_menu(state):
                     return state
                 elif shop_rect.collidepoint(mouse_pos):
                     state["current"] = "shop"
+                elif account_rect.collidepoint(mouse_pos):
+                    state["current"] = "account"
                 elif exit_btn_rect.collidepoint(mouse_pos):
                     pygame.quit()
                     sys.exit()
@@ -135,6 +147,8 @@ def main_menu(state):
                     return state
                 elif event.key == pygame.K_e:
                     state["current"] = "shop"
+                elif event.key == pygame.K_a:
+                    state["current"] = "account"
                 elif event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
@@ -156,5 +170,7 @@ if __name__ == "__main__":
             state["current"] = "menu"
         elif state["current"] == "shop":
             state = character_shop(state)
+        elif state["current"] == "account":
+            state["current"] = handle_account(state)
         else:
             state["current"] = "menu"
