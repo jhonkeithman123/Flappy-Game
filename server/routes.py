@@ -7,12 +7,18 @@ routes = Blueprint("routes", __name__)
 @routes.route('/signup', methods=['POST'])
 def signup_route():
     data = request.json
-    return jsonify(signup(data["username"], data["password"]))
+    response = signup(data["username"], data["password"])
+
+    print(f"Debug: Response type = {type(response)}, Value = {response}")
+    return jsonify(response)
 
 @routes.route('/login', methods=['POST'])
 def login_route():
     data = request.json
-    return jsonify(login(data["username"], data["password"]))
+    response = login(data["username"], data["password"])
+    
+    print(f"Debug: Login response: {response}")
+    return jsonify(response)
 
 @routes.route('/save_score', methods=['POST'])
 def save_score():
@@ -28,7 +34,7 @@ def save_score():
     return jsonify({"message": "Score updated successfully"})
 
 @routes.route('/get_score/<username>', methods=['GET'])
-def get_score (username):
+def get_score(username):
     db = get_db_connection()
     cursor = db.cursor()
 

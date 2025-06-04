@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from db_config import get_db_connection
 from routes import routes
 
