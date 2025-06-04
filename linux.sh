@@ -2,21 +2,22 @@
 
 echo "Cleaning previous build artifacts..."
 
-if [ -d "dist" ]; then
-    rm -rf "dist"
-fi
+sanitize_path() {
+    echo "$1" | sed 's|\.\./||g'
+}
 
-if [ -d "build" ]; then
-    rm -rf "build"
-fi
+DIST_PATH=$(realpath dist)
+BUILD_PATH=$(realpath build)
+SPEC_PATH=$(realpath main.spec)
+ASSETS_PATH=$(realpath assets)
+GAME_PATH=$(sanitize_path "game")
 
-if [ -f "main.spec" ]; then
-    rm -rf "main.spec"
-fi
+rm -rf "$DIST_PATH" "$BUILD_PATH" "$SPEC_PATH"
 
 echo "Building the compiled game...."
 
-pyinstaller --onefile --windowed --name "FlappyGame" --add-data "assets:assets" main.py
+python -m PyInstaller --onefile --windowed --name "FlappyGame" --add-data "$ASSETS_PATH:assets" \
+ --add-data "$GAME_PATH:game" game/main.py
 
 # shellcheck disable=SC2181
 if [ $? -ne 0 ]; then

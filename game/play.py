@@ -30,22 +30,22 @@ os.environ["SDL_RENDER_DRIVER"] = "software"
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game - Play')
 
-BG = pygame.image.load(resource_path('../assets/image/background.png')).convert()
+BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
 BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
 coin_size = (30, 30)
-coin_img = pygame.image.load(resource_path("../assets/image/coin.png")).convert_alpha()
+coin_img = pygame.image.load(resource_path("assets/image/coin.png")).convert_alpha()
 coin_img = pygame.transform.scale(coin_img, coin_size)
 
-coin_flip_img = pygame.image.load(resource_path("../assets/image/coin-flip.png")).convert_alpha()
+coin_flip_img = pygame.image.load(resource_path("assets/image/coin-flip.png")).convert_alpha()
 coin_flip_img = pygame.transform.scale(coin_flip_img, coin_size)
 
 coin_images = [coin_img, coin_flip_img]
 
-font = pygame.font.Font(resource_path('../assets/font/font.ttf'), 48)
-coinFont = pygame.font.Font(resource_path("../assets/font/font.ttf"), 37)
-coinsFont = pygame.font.Font(resource_path("../assets/font/font.ttf"), 24)
-fontTxt = pygame.font.Font(resource_path('../assets/font/font.ttf'), 25)
+font = pygame.font.Font(resource_path('assets/font/font.ttf'), 48)
+coinFont = pygame.font.Font(resource_path("assets/font/font.ttf"), 37)
+coinsFont = pygame.font.Font(resource_path("assets/font/font.ttf"), 24)
+fontTxt = pygame.font.Font(resource_path('assets/font/font.ttf'), 25)
 
 bird_img = pygame.transform.scale(character_images[get_character()], (70, 50))
 bird_rect = bird_img.get_rect(center=(150, HEIGHT // 2))
@@ -56,10 +56,10 @@ flap_strength = -10
 pipe_width = 80
 pipe_height = 500
 
-pipe_top_img = pygame.image.load(resource_path("../assets/image/Top.png")).convert_alpha()
+pipe_top_img = pygame.image.load(resource_path("assets/image/Top.png")).convert_alpha()
 pipe_top_img = pygame.transform.scale(pipe_top_img, (pipe_width, pipe_height))
 
-pipe_bottom_img = pygame.image.load(resource_path("../assets/image/Bottom.png")).convert_alpha()
+pipe_bottom_img = pygame.image.load(resource_path("assets/image/Bottom.png")).convert_alpha()
 pipe_bottom_img = pygame.transform.scale(pipe_bottom_img, (90, pipe_height))
 
 pipe_gap = 300
@@ -67,19 +67,19 @@ pipe_speed = 4
 scroll_speed = 2
 pipe_frequency = 1600
 
-chain1 = pygame.image.load(resource_path("../assets/image/chain.png")).convert_alpha()
+chain1 = pygame.image.load(resource_path("assets/image/chain.png")).convert_alpha()
 chain1 = pygame.transform.scale(chain1, (50, 90))
 chain1_rect = chain1.get_rect(center=(WIDTH // 2 - 100, HEIGHT // 2 - 275))
 
-chain2 = pygame.image.load(resource_path("../assets/image/chain.png")).convert_alpha()
+chain2 = pygame.image.load(resource_path("assets/image/chain.png")).convert_alpha()
 chain2 = pygame.transform.scale(chain2, (50, 90))
 chain2_rect = chain2.get_rect(center=(WIDTH // 2 + 100, HEIGHT // 2 - 275))
 
-retry_img = pygame.image.load(resource_path("../assets/image/retry.png")).convert_alpha()
+retry_img = pygame.image.load(resource_path("assets/image/retry.png")).convert_alpha()
 retry_img = pygame.transform.scale(retry_img, (130, 60))
 retry_img_rect = retry_img.get_rect(center=(WIDTH // 2 + 80, HEIGHT // 2 + 240))
 
-menu_img = pygame.image.load(resource_path("../assets/image/Menu.png")).convert_alpha()
+menu_img = pygame.image.load(resource_path("assets/image/Menu.png")).convert_alpha()
 menu_img = pygame.transform.scale(menu_img, (130, 60))
 menu_img_rect = menu_img.get_rect(center=(WIDTH // 2 - 80, HEIGHT // 2 + 240))
 
@@ -89,7 +89,7 @@ menu_label = fontTxt.render("Menu Button", True, (0, 0, 0))
 retry_label_rect = retry_label.get_rect(center=(retry_img_rect.centerx, retry_img_rect.top + 73))
 menu_label_rect = menu_label.get_rect(center=(menu_img_rect.centerx, menu_img_rect.top + 73))
 
-gameover_platform_img = pygame.image.load(resource_path("../assets/image/gameoverPlat.png")).convert_alpha()
+gameover_platform_img = pygame.image.load(resource_path("assets/image/gameoverPlat.png")).convert_alpha()
 platfrom_width = int(WIDTH * 0.6)
 platform_height = int(platfrom_width * (gameover_platform_img.get_height() / gameover_platform_img.get_width()))
 gameover_platform_img = pygame.transform.scale(gameover_platform_img, (platfrom_width - 130, platform_height - 250))
@@ -263,7 +263,7 @@ def run_game(state):
 
     reset_game()
 
-    countdown_font = pygame.font.Font(resource_path("../assets/font/font.ttf"), 64)
+    countdown_font = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
     countdown = 3
     countdown_start = pygame.time.get_ticks()
 

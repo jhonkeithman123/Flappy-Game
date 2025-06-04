@@ -5,7 +5,7 @@ import os
 import pygame
 import sys
 from saves import reset_save_directory_config, get_user_save_directory, get_character, load_settings
-from shop import character_shop, selected_character
+from shop import character_shop
 from play import run_game
 from settings import handle_settings_events
 from helper import resource_path, character_images
@@ -33,17 +33,17 @@ os.environ["SDL_RENDER_DRIVER"] = "software"
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game')
 
-BG = pygame.image.load(resource_path('../assets/image/background.png')).convert()
+BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
 BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
-FONT = pygame.font.Font(resource_path("../assets/font/font.ttf"), 64)
-font = pygame.font.Font(resource_path("../assets/font/font.ttf"), 30)
+FONT = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
+font = pygame.font.Font(resource_path("assets/font/font.ttf"), 30)
 
-play_btn_img = pygame.image.load(resource_path('../assets/image/Play.png')).convert_alpha()
-exit_btn_img = pygame.image.load(resource_path('../assets/image/Exit.png')).convert_alpha()
-setting_btn_img = pygame.image.load(resource_path('../assets/image/Setting.png')).convert_alpha()
+play_btn_img = pygame.image.load(resource_path('assets/image/Play.png')).convert_alpha()
+exit_btn_img = pygame.image.load(resource_path('assets/image/Exit.png')).convert_alpha()
+setting_btn_img = pygame.image.load(resource_path('assets/image/Setting.png')).convert_alpha()
 
-shop_img = pygame.image.load(resource_path('../assets/image/shop.png')).convert_alpha()
+shop_img = pygame.image.load(resource_path('assets/image/shop.png')).convert_alpha()
 shop_img = pygame.transform.scale(shop_img, (50, 50))
 shop_rect = shop_img.get_rect(center=(WIDTH / 2 + 355, HEIGHT / 2))
 
@@ -59,7 +59,7 @@ play_btn_rect = play_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 70))
 exit_btn_rect = exit_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 170))
 setting_btn_rect = setting_btn_img.get_rect(bottomleft=(padding, HEIGHT - padding))
 
-account = pygame.image.load(resource_path('../assets/image/account.png')).convert_alpha()
+account = pygame.image.load(resource_path('assets/image/account.png')).convert_alpha()
 account = pygame.transform.scale(account, (50, 50))
 account_rect = account.get_rect(center=(exit_btn_rect.right + 285, exit_btn_rect.top + 120))
 

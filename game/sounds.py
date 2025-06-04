@@ -8,17 +8,17 @@ def init_sounds():
     Initializes the mixer, loads background music, and starts playing it on loop.
     Call this once at the beginning of your game (e.g. in main).
     """
-    music_path = resource_path('../assets/sounds/bg-music.mp3')
+    music_path = resource_path('assets/sounds/bg-music.mp3')
     pygame.mixer.music.load(music_path)
     pygame.mixer.music.set_volume(0.4)
     pygame.mixer.music.play(-1)
 
-flap_sound = pygame.mixer.Sound(resource_path('../assets/sounds/flap.mp3'))
-score_sound = pygame.mixer.Sound(resource_path('../assets/sounds/score.mp3'))
-slap_sound = pygame.mixer.Sound(resource_path('../assets/sounds/slap.mp3'))
-death_sound = pygame.mixer.Sound(resource_path('../assets/sounds/death.mp3'))
-gameover_sound = pygame.mixer.Sound(resource_path('../assets/sounds/gameover-sound.mp3'))
-coin_sound = pygame.mixer.Sound(resource_path("../assets/sounds/coin.mp3"))
+flap_sound = pygame.mixer.Sound(resource_path('assets/sounds/flap.mp3'))
+score_sound = pygame.mixer.Sound(resource_path('assets/sounds/score.mp3'))
+slap_sound = pygame.mixer.Sound(resource_path('assets/sounds/slap.mp3'))
+death_sound = pygame.mixer.Sound(resource_path('assets/sounds/death.mp3'))
+gameover_sound = pygame.mixer.Sound(resource_path('assets/sounds/gameover-sound.mp3'))
+coin_sound = pygame.mixer.Sound(resource_path("assets/sounds/coin.mp3"))
 
 sound_fx_volume = 0.5
 

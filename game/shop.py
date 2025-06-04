@@ -8,14 +8,14 @@ from config import VERSION, WIDTH, HEIGHT
 os.environ["SDL_RENDER_DRIVER"] = "software"
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 
-FONT = pygame.font.Font(resource_path("../assets/font/font.ttf"), 64)
-fontTxt = pygame.font.Font(resource_path("../assets/font/font.ttf"), 20)
+FONT = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
+fontTxt = pygame.font.Font(resource_path("assets/font/font.ttf"), 20)
 
-shop_ui = pygame.image.load(resource_path("../assets/image/shop-ui.png")).convert()
+shop_ui = pygame.image.load(resource_path("assets/image/shop-ui.png")).convert()
 shop_ui = pygame.transform.scale(shop_ui, (WIDTH // 2 + 200, HEIGHT // 2 + 150))
 shop_ui_rect = shop_ui.get_rect(center=(WIDTH // 2, HEIGHT // 2))
 
-close_img = pygame.image.load(resource_path("../assets/image/X.png")).convert_alpha()
+close_img = pygame.image.load(resource_path("assets/image/X.png")).convert_alpha()
 close_img = pygame.transform.scale(close_img, (40, 40))
 close_rect = close_img.get_rect(topright=(WIDTH // 2 + 290, HEIGHT // 2 - 215))
 
@@ -51,8 +51,8 @@ def confirm_purchase(name, cost):
     question_rect = question_text.get_rect(center=(small_rect.centerx, small_rect.top + 40))
     SCREEN.blit(question_text, question_rect)
 
-    yes_btn = pygame.image.load(resource_path("../assets/image/Yes.png")).convert_alpha()
-    no_btn = pygame.image.load(resource_path("../assets/image/No.png")).convert_alpha()
+    yes_btn = pygame.image.load(resource_path("assets/image/Yes.png")).convert_alpha()
+    no_btn = pygame.image.load(resource_path("assets/image/No.png")).convert_alpha()
 
     yes_btn = pygame.transform.scale(yes_btn, (85, 45))
     no_btn = pygame.transform.scale(no_btn, (85, 45))

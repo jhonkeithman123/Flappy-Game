@@ -12,7 +12,7 @@ py.display.set_caption("Flappy Game - Login")
 
 manager = pyg.UIManager((WIDTH, HEIGHT))
 
-font = py.font.Font(resource_path("../assets/font/font.ttf"), 24)
+font = py.font.Font(resource_path("assets/font/font.ttf"), 24)
 
 def draw_text(surface, text, position, color=(255, 255, 255)):
     """Helper function to render text."""
@@ -53,11 +53,11 @@ signup_button = pyg.elements.UIButton(
     manager=manager
 )
 
-close_img = py.image.load(resource_path("../assets/image/X.png"))
+close_img = py.image.load(resource_path("assets/image/X.png"))
 close_img = py.transform.scale(close_img, (30, 30))
 close_rect = close_img.get_rect(midtop=(20, 5))
 
-eye_img = py.image.load(resource_path("../assets/image/eye.png"))
+eye_img = py.image.load(resource_path("assets/image/eye.png"))
 eye_img = py.transform.scale(eye_img, (30, 30))
 
 eye_button = pyg.elements.UIButton(

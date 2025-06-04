@@ -5,20 +5,20 @@ from saves import load_settings, save_settings
 from sounds import play_sound_effect, update_sound_fx_volume
 from config import VERSION, WIDTH, HEIGHT
 
-font = pygame.font.Font(resource_path('../assets/font/font.ttf'), 40)
-BG = pygame.image.load(resource_path('../assets/image/background.png')).convert()
+font = pygame.font.Font(resource_path('assets/font/font.ttf'), 40)
+BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
 BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
-mute_icon = pygame.image.load(resource_path('../assets/image/music-close.png')).convert_alpha()
-unmute_icon = pygame.image.load(resource_path('../assets/image/music-open.png')).convert_alpha()
+mute_icon = pygame.image.load(resource_path('assets/image/music-close.png')).convert_alpha()
+unmute_icon = pygame.image.load(resource_path('assets/image/music-open.png')).convert_alpha()
 
 mute_icon = pygame.transform.scale(mute_icon, (120, 60))
 unmute_icon = pygame.transform.scale(unmute_icon, (120, 60))
 
-platform = pygame.image.load(resource_path('../assets/image/SettingPlat.png')).convert_alpha()
+platform = pygame.image.load(resource_path('assets/image/SettingPlat.png')).convert_alpha()
 platform_rect = platform.get_rect(center=(WIDTH - 395, HEIGHT - 300))
 
-close_img = pygame.image.load(resource_path("../assets/image/X.png")).convert_alpha()
+close_img = pygame.image.load(resource_path("assets/image/X.png")).convert_alpha()
 close_img = pygame.transform.scale(close_img, (40, 40))
 close_img_rect = close_img.get_rect(center=(platform_rect.centerx + 180, platform_rect.top + 45))
 
@@ -83,7 +83,7 @@ def draw_settings_panel(screen, rect):
     """
     screen.blit(BG, (0, 0))
 
-    platform = pygame.image.load(resource_path('../assets/image/SettingPlat.png')).convert_alpha()
+    platform = pygame.image.load(resource_path('assets/image/SettingPlat.png')).convert_alpha()
     platform_rect = platform.get_rect(center=(WIDTH - 395, HEIGHT - 300))
     screen.blit(platform, platform_rect)
     screen.blit(close_img, close_img_rect)
