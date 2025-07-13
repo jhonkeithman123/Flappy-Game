@@ -29,11 +29,18 @@ def draw_centered_text(surface, text, center_position, font, color=(255, 255, 25
     surface.blit(text_surface, text_rect)
 
 username_input = UItextEntryLineWithPlaceholder(
-    relative_rect=py.Rect((WIDTH // 2 - 100, HEIGHT // 2 - 80), (200, 40)),
+    relative_rect=py.Rect((WIDTH // 2 - 100, HEIGHT // 2 - 110), (200, 40)),
     manager=manager
 )
 user_placeholder = "Enter Username"
 username_input.set_placeholder(user_placeholder)
+
+email_input = UItextEntryLineWithPlaceholder(
+    relative_rect=py.Rect((WIDTH // 2 - 100, HEIGHT // 2 - 70), (200, 40)),
+    manager=manager
+)
+email_placeholder = "Enter Email"
+email_input.set_placeholder(email_placeholder)
 
 password_input = UITextEntryLinePassword(
     relative_rect=py.Rect((WIDTH // 2 - 100, HEIGHT // 2 - 30), (200, 40)),
@@ -96,18 +103,19 @@ def handle_account(state):
             if event.type == pyg.UI_BUTTON_PRESSED:
                 if event.ui_element == login_button:
                     username = username_input.get_text().strip()
+                    email = email_input.get_text().strip()
                     password = password_input.get_real_text().strip()
-                    print(f"Debug: username='{username}', password='{password}'")
+                    print(f"Debug: username='{username}', email='{email}', password='{password}'")
 
-                    if username in ("", user_placeholder) or password in ("" ,password_placeholder):
-                        message = "Please enter your username and password."
+                    if username in ("", user_placeholder) or password in ("" ,password_placeholder) or email in ("", email_placeholder):
+                        message = "Please enter your username, email, and password."
                         message_time = 3
                         message_color = (255, 0, 0)  # Red color for error messages
                         continue
 
                     try:
                         response = requests.post("http://127.0.0.1:5000/login",
-                                                 json={"username": username, "password": password})
+                                                 json={"username": username, "password": password, "email": email})
                         data = response.json()
                     except Exception as e:
                         print("Login failed.", e)
@@ -126,18 +134,19 @@ def handle_account(state):
 
                 elif event.ui_element == signup_button:
                     username = username_input.get_text().strip()
+                    email = email_input.get_text().strip()
                     password = password_input.get_real_text().strip()
-                    print(f"Debug: username='{username}', password='{password}'")
+                    print(f"Debug: username='{username}', email='{email}', password='{password}'")
 
-                    if username in ("", user_placeholder) or password in ("" ,password_placeholder):
-                        message = "Please enter your username and password."
+                    if username in ("", user_placeholder) or password in ("" ,password_placeholder) or email in ("", email_placeholder):
+                        message = "Please enter your username, email, and password."
                         message_time = 3
                         message_color = (255, 0, 0)  # Red color for error messages
                         continue
 
                     try:
                         response = requests.post("http://127.0.0.1:5000/signup",
-                                                 json={"username": username, "password": password})
+                                                 json={"username": username, "password": password, "email": email})
                         data = response.json()
                     except Exception as e:
                         print("Signup failed:", e)
@@ -166,9 +175,10 @@ def handle_account(state):
 
         screen.fill((30, 30, 30))
         screen.blit(close_img, close_rect)
-        draw_text(screen, "Account Page", (WIDTH // 2 - 55, HEIGHT // 2 - 120))
-        draw_text(screen, "Username:", (WIDTH // 2 - 190, HEIGHT // 2 - 70))
-        draw_text(screen, "Password:", (WIDTH // 2 - 190, HEIGHT // 2 - 20))
+        draw_text(screen, "Account Page", (WIDTH // 2 - 55, HEIGHT // 2 - 145))
+        draw_text(screen, "Username:", (WIDTH // 2 - 190, HEIGHT // 2 - 105))
+        draw_text(screen, "Email:", (WIDTH // 2 - 150, HEIGHT // 2 - 65))
+        draw_text(screen, "Password:", (WIDTH // 2 - 190, HEIGHT // 2 - 25))
 
         if message_time > 0:
             draw_centered_text(screen, message, (WIDTH // 2, HEIGHT // 2 + 120), font, color=message_color)
