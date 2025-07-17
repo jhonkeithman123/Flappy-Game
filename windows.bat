@@ -18,7 +18,7 @@ if exist "main.spec" (
 
 echo Building the executable...
 
-pyinstaller --onefile --windowed --name "FlappyGamev1" --add-data "assets;assets" game/main.py
+pyinstaller --onefile --windowed --name "FlappyGamev2" --add-data "assets;assets" --add-data "game;game" game/main.py
 
 if %ERRORLEVEL% neq 0 (
     echo Build failed!
