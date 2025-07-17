@@ -5,7 +5,7 @@ a = Analysis(
     ['game/main.py'],
     pathex=[],
     binaries=[],
-    datas=[('/home/keith123/PycharmProjects/Flappy-Game/assets', 'assets'), ('game', 'game')],
+    datas=[('/home/keith123/Flappy-Game/assets', 'assets'), ('game', 'game')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
