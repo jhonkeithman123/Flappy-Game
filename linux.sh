@@ -25,6 +25,10 @@ if [ $? -ne 0 ]; then
     exit 1
 else
   echo "Build succeeded!"
+  echo "Allowing execution permissions for the compiled game..."
+  chmod +x dist/FlappyGame
+  echo "Done!"
+  echo "You can find the compiled game in the 'dist' directory."
 fi
 
 # shellcheck disable=SC2162
