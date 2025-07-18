@@ -6,13 +6,15 @@ sanitize_path() {
     echo "$1" | sed 's|\.\./||g'
 }
 
-DIST_PATH=$(realpath dist)
-BUILD_PATH=$(realpath build)
-SPEC_PATH=$(realpath main.spec)
-ASSETS_PATH=$(realpath assets)
-GAME_PATH=$(sanitize_path "game")
+SCRIPT_DIR="$(cd -- "$(dirname "$0")" && pwd)"
 
-rm -rf "$DIST_PATH" "$BUILD_PATH" "$SPEC_PATH"
+DIST_PATH=$SCRIPT_DIR/../dist
+BUILD_PATH=$SCRIPT_DIR/../build
+SPEC_PATH=$SCRIPT_DIR/../main.spec
+ASSETS_PATH=$SCRIPT_DIR/../assets
+GAME_PATH=$SCRIPT_DIR/../game
+
+rm -rf "$DIST_PATH/FlappyGame" "$BUILD_PATH" "$SPEC_PATH"
 
 echo "Building the compiled game...."
 
@@ -26,7 +28,7 @@ if [ $? -ne 0 ]; then
 else
   echo "Build succeeded!"
   echo "Allowing execution permissions for the compiled game..."
-  chmod +x dist/FlappyGame
+  chmod +x $DIST_PATH/FlappyGame
   echo "Done!"
   echo "You can find the compiled game in the 'dist' directory."
 fi

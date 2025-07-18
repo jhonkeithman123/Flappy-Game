@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['game/main.py'],
+    ['/home/keith123/Flappy-Game/windows/../game/main.py'],
     pathex=[],
     binaries=[],
-    datas=[('/home/keith123/Flappy-Game/linux/../assets', 'assets'), ('/home/keith123/Flappy-Game/linux/../game', 'game')],
+    datas=[('/home/keith123/Flappy-Game/windows/../assets', 'assets'), ('/home/keith123/Flappy-Game/windows/../game', 'game')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='FlappyGame',
+    name='FlappyGame.exe',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
