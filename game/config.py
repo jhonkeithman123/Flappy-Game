@@ -1,5 +1,5 @@
 
-VERSION = "v2.1"
+VERSION: str = "v2.1"
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH: int = 800
+HEIGHT: int = 600

@@ -13,8 +13,9 @@ BUILD_PATH=$SCRIPT_DIR/../build
 SPEC_PATH=$SCRIPT_DIR/../main.spec
 ASSETS_PATH=$SCRIPT_DIR/../assets
 GAME_PATH=$SCRIPT_DIR/../game
+RUN_SCRIPT="$SCRIPT_DIR/../run.sh"
 
-rm -rf "$DIST_PATH/FlappyGame" "$BUILD_PATH" "$SPEC_PATH"
+rm -rf "$DIST_PATH/FlappyGame" "$BUILD_PATH" "$SPEC_PATH" "$RUN_SCRIPT"
 
 echo "Building the compiled game...."
 
@@ -29,8 +30,17 @@ else
   echo "Build succeeded!"
   echo "Allowing execution permissions for the compiled game..."
   chmod +x $DIST_PATH/FlappyGame
+
+  echo "Creating run.sh helper script..."
+  cat > "$RUN_SCRIPT" << 'EOF'
+#!/bin/bash
+SCRIPT_DIR="$(cd -- "$(dirname "$0")" && pwd)"
+"$SCRIPT_DIR/dist/FlappyGame"
+EOF
+  chmod +x "$RUN_SCRIPT"
+  
   echo "Done!"
-  echo "You can find the compiled game in the 'dist' directory."
+  echo "You can run the game with: ./run.sh"
 fi
 
 # shellcheck disable=SC2162

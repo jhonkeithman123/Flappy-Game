@@ -1,26 +1,28 @@
 import pygame
-from helper import resource_path, character_images
-from saves import get_coins, save_coins, get_character, save_character, get_owned_characters, save_owned_characters
 import sys
 import os
-from config import VERSION, WIDTH, HEIGHT
+
+from helper import resource_path, character_images
+from saves import get_coins, save_coins, get_character, save_character, get_owned_characters, save_owned_characters
+from config import WIDTH, HEIGHT
+from ui import SurfaceType, Rect, Font
 
 os.environ["SDL_RENDER_DRIVER"] = "software"
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
+SCREEN: SurfaceType = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 
-FONT = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
-fontTxt = pygame.font.Font(resource_path("assets/font/font.ttf"), 20)
+FONT: Font = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
+fontTxt: Font = pygame.font.Font(resource_path("assets/font/font.ttf"), 20)
 
-shop_ui = pygame.image.load(resource_path("assets/image/shop-ui.png")).convert()
+shop_ui: SurfaceType = pygame.image.load(resource_path("assets/image/shop-ui.png")).convert()
 shop_ui = pygame.transform.scale(shop_ui, (WIDTH // 2 + 200, HEIGHT // 2 + 150))
-shop_ui_rect = shop_ui.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+shop_ui_rect: Rect = shop_ui.get_rect(center=(WIDTH // 2, HEIGHT // 2))
 
-close_img = pygame.image.load(resource_path("assets/image/X.png")).convert_alpha()
+close_img: SurfaceType = pygame.image.load(resource_path("assets/image/X.png")).convert_alpha()
 close_img = pygame.transform.scale(close_img, (40, 40))
-close_rect = close_img.get_rect(topright=(WIDTH // 2 + 290, HEIGHT // 2 - 215))
+close_rect: Rect = close_img.get_rect(topright=(WIDTH // 2 + 290, HEIGHT // 2 - 215))
 
-selected_character = "default"
-owned_characters = {"default"}
+selected_character: str = "default"
+owned_characters: set[str] = {"default"}
 
 character_costs = {
     "default": 0,
@@ -34,31 +36,31 @@ player_coins = get_coins()
 owned_characters = get_owned_characters()
 selected_character = get_character()
 
-def confirm_purchase(name, cost):
+def confirm_purchase(name: str, cost: int) -> bool | None:
     """
     Draws a blocking confirmation dialog asking if the player wants to purchase the character.
     Returns True if the player presses 'Y' ; False if 'N'.
     """
-    small_ui = shop_ui.copy()
-    small_width = int(shop_ui_rect.width * 0.5)
-    small_height = int(shop_ui_rect.height * 0.5)
+    small_ui: SurfaceType = shop_ui.copy()
+    small_width: int = int(shop_ui_rect.width * 0.5)
+    small_height: int = int(shop_ui_rect.height * 0.5)
     small_ui = pygame.transform.scale(small_ui, (small_width, small_height))
-    small_rect = small_ui.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    small_rect: Rect = small_ui.get_rect(center=(WIDTH // 2, HEIGHT // 2))
 
     SCREEN.blit(small_ui, small_rect)
 
-    question_text = fontTxt.render(f"Buy {name} for {cost} coins?", True, (255, 255, 255))
-    question_rect = question_text.get_rect(center=(small_rect.centerx, small_rect.top + 40))
+    question_text: SurfaceType = fontTxt.render(f"Buy {name} for {cost} coins?", True, (255, 255, 255))
+    question_rect: Rect = question_text.get_rect(center=(small_rect.centerx, small_rect.top + 40))
     SCREEN.blit(question_text, question_rect)
 
-    yes_btn = pygame.image.load(resource_path("assets/image/Yes.png")).convert_alpha()
-    no_btn = pygame.image.load(resource_path("assets/image/No.png")).convert_alpha()
+    yes_btn: SurfaceType = pygame.image.load(resource_path("assets/image/Yes.png")).convert_alpha()
+    no_btn: SurfaceType = pygame.image.load(resource_path("assets/image/No.png")).convert_alpha()
 
     yes_btn = pygame.transform.scale(yes_btn, (85, 45))
     no_btn = pygame.transform.scale(no_btn, (85, 45))
 
-    yes_rect = yes_btn.get_rect(center=(small_rect.centerx - 50, small_rect.top + 80))
-    no_rect = no_btn.get_rect(center=(small_rect.centerx + 50, small_rect.top + 80))
+    yes_rect: Rect = yes_btn.get_rect(center=(small_rect.centerx - 50, small_rect.top + 80))
+    no_rect: Rect = no_btn.get_rect(center=(small_rect.centerx + 50, small_rect.top + 80))
 
     SCREEN.blit(yes_btn, yes_rect)
     SCREEN.blit(no_btn, no_rect)
@@ -78,24 +80,24 @@ def confirm_purchase(name, cost):
             elif no_rect.collidepoint(event.pos):
                 return False
 
-def draw_shop(scroll_offset):
+def draw_shop(scroll_offset: float) -> None:
     SCREEN.blit(shop_ui, shop_ui_rect)
 
-    title_text = FONT.render("Character Shop", True, (255, 255, 255))
+    title_text: SurfaceType = FONT.render("Character Shop", True, (255, 255, 255))
     title_rect = title_text.get_rect(midtop=(shop_ui_rect.centerx, shop_ui_rect.top + 30))
     SCREEN.blit(title_text, title_rect)
 
     SCREEN.blit(close_img, close_rect)
 
-    coins_text = fontTxt.render(f"Coins: {player_coins}", True, (255, 255, 255))
-    coins_rect = coins_text.get_rect(midtop=(shop_ui_rect.centerx, shop_ui_rect.top + 10))
+    coins_text: SurfaceType = fontTxt.render(f"Coins: {player_coins}", True, (255, 255, 255))
+    coins_rect: Rect = coins_text.get_rect(midtop=(shop_ui_rect.centerx, shop_ui_rect.top + 10))
     SCREEN.blit(coins_text, coins_rect)
 
-    selection_width = shop_ui_rect.width - 40
-    selection_height = shop_ui_rect.height - 120
-    selection_area = pygame.Surface((selection_width, selection_height), pygame.SRCALPHA)
+    selection_width: int = shop_ui_rect.width - 40
+    selection_height: int = shop_ui_rect.height - 120
+    selection_area: SurfaceType = pygame.Surface((selection_width, selection_height), pygame.SRCALPHA)
     selection_area.fill((0, 0, 0, 0))
-    start_y = 20
+    start_y: int = 20
 
     for index, (name, image) in enumerate(character_images.items()):
         y_pos = start_y + (index * 100) + scroll_offset
@@ -105,45 +107,45 @@ def draw_shop(scroll_offset):
             selection_area.blit(image, character_rect)
 
             if name in owned_characters:
-                cost_text = fontTxt.render("Owned", True, (0, 255, 0))
+                cost_text: SurfaceType = fontTxt.render("Owned", True, (0, 255, 0))
             else:
-                cost_text = fontTxt.render(f"{character_costs[name]} Coins", True, (255, 215, 0))
-            cost_rect = cost_text.get_rect(midtop=(character_rect.centerx, character_rect.bottom + 5))
+                cost_text: SurfaceType = fontTxt.render(f"{character_costs[name]} Coins", True, (255, 215, 0))
+            cost_rect: Rect = cost_text.get_rect(midtop=(character_rect.centerx, character_rect.bottom + 5))
             selection_area.blit(cost_text, cost_rect)
 
             if name == selected_character:
                 pygame.draw.rect(selection_area, (255, 215, 0), character_rect.inflate(10, 10), 3)
 
-    selection_area_rect = selection_area.get_rect(center=(shop_ui_rect.centerx, shop_ui_rect.centery + 30))
+    selection_area_rect: Rect = selection_area.get_rect(center=(shop_ui_rect.centerx, shop_ui_rect.centery + 30))
     SCREEN.blit(selection_area, selection_area_rect)
 
     pygame.display.flip()
 
 
-def draw_message(message):
+def draw_message(message: str):
 
-    plat = shop_ui.copy()
-    plat_width = int(shop_ui_rect.width * 0.5)
-    plat_height = int(shop_ui_rect.height * 0.5)
+    plat: SurfaceType = shop_ui.copy()
+    plat_width: int = int(shop_ui_rect.width * 0.5)
+    plat_height: int = int(shop_ui_rect.height * 0.5)
     plat = pygame.transform.scale(plat, (plat_width, plat_height))
-    plat_rect = plat.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    plat_rect: Rect = plat.get_rect(center=(WIDTH // 2, HEIGHT // 2))
 
     SCREEN.blit(plat, plat_rect)
-    txtmsg = fontTxt.render(message, True, (255, 255, 255))
-    txtmsg_rect = txtmsg.get_rect(center=(plat_rect.centerx, plat_rect.top + 80))
+    txtmsg: SurfaceType = fontTxt.render(message, True, (255, 255, 255))
+    txtmsg_rect: Rect = txtmsg.get_rect(center=(plat_rect.centerx, plat_rect.top + 80))
     SCREEN.blit(txtmsg, txtmsg_rect)
 
     pygame.display.flip()
     pygame.time.wait(2000)
 
-def character_shop(state):
+def character_shop(state: dict[str, str]) -> dict[str, str]:
     global selected_character, owned_characters, player_coins
 
-    scroll_offset = 0
-    target_scroll = scroll_offset
-    running = True
+    scroll_offset: float = 0
+    target_scroll: float = scroll_offset
+    running: bool = True
 
-    smoothing_factor = 5.0
+    smoothing_factor: float = 5.0
     clock = pygame.time.Clock()
     while running:
         dt = clock.tick(60) / 1000.0

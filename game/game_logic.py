@@ -1,11 +1,18 @@
 import pygame
+from typing import Sequence, Tuple, TypedDict
 
-from saves import get_coins, save_coins
 from sounds import play_score_sound, play_slap_sound, play_coin_collect_sound
+from ui import Rect
 
+class PipeDict(TypedDict):
+    top: Rect
+    bottom: Rect
+    coin: Rect
+    coin_collected: bool
+    scored: bool
 
 # Checks for collision
-def check_collision(bird_rect, pipes):
+def check_collision(bird_rect: Rect, pipes: Sequence[PipeDict]) -> Tuple[bool, int]:
     """
     Checks for collisions with pipes and boundaries (game over collisions)
     and also checks for coin collections.
@@ -13,8 +20,8 @@ def check_collision(bird_rect, pipes):
     Returns a tuple:
         (game_over: bool, coins_collected: int)
     """
-    game_over = False
-    coins_collected = 0
+    game_over: bool = False
+    coins_collected: int = 0
 
     for pipe in pipes:
         if bird_rect.colliderect(pipe["top"]) or bird_rect.colliderect(pipe["bottom"]):
@@ -35,7 +42,7 @@ def check_collision(bird_rect, pipes):
     return game_over, coins_collected
 
 # for giving points
-def update_score(bird_rect, pipes, score):
+def update_score(bird_rect: Rect, pipes: Sequence[PipeDict], score: int) -> int:
     for pipe in pipes:
         if not pipe["scored"] and pipe["top"].right < bird_rect.left:
             pipe["scored"] = True
@@ -44,7 +51,7 @@ def update_score(bird_rect, pipes, score):
             print(f"Player scored, total score: {score}")
     return score
 
-def get_pipe_frequency(score):
+def get_pipe_frequency(score: int) -> int:
     if score >= 150:
         return 800
     elif score >= 120:
@@ -64,7 +71,7 @@ def get_pipe_frequency(score):
     else:
         return 1600
 
-def get_pipe_gap(score):
+def get_pipe_gap(score: int) -> int:
     if score >= 100:
         return 160
     elif score >= 50:
@@ -78,7 +85,7 @@ def get_pipe_gap(score):
     else:
         return 300
 
-def update_game_speed(score, pipe_frequency, spawn_pipe):
+def update_game_speed(score: int, pipe_frequency: int, spawn_pipe: int) -> Tuple[int, int, int]:
 
     if score >= 100:
         new_pipe_speed = 9

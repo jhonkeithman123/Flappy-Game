@@ -1,13 +1,13 @@
 import pygame
 from helper import resource_path
 
-sound_fx_volume = 0.5
-sound_enabled = True
+sound_fx_volume: float = 0.5
+sound_enabled: bool = True
 
 try: 
     pygame.mixer.init()
 
-    def init_sounds():
+    def init_sounds() -> None:
         """
         Initializes the mixer, loads background music, and starts playing it on loop.
         Call this once at the beginning of your game (e.g. in main).
@@ -17,14 +17,14 @@ try:
         pygame.mixer.music.set_volume(0.4)
         pygame.mixer.music.play(-1)
 
-    flap_sound = pygame.mixer.Sound(resource_path('assets/sounds/flap.mp3'))
-    score_sound = pygame.mixer.Sound(resource_path('assets/sounds/score.mp3'))
-    slap_sound = pygame.mixer.Sound(resource_path('assets/sounds/slap.mp3'))
-    death_sound = pygame.mixer.Sound(resource_path('assets/sounds/death.mp3'))
-    gameover_sound = pygame.mixer.Sound(resource_path('assets/sounds/gameover-sound.mp3'))
-    coin_sound = pygame.mixer.Sound(resource_path("assets/sounds/coin.mp3"))
+    flap_sound: pygame.mixer.Sound = pygame.mixer.Sound(resource_path('assets/sounds/flap.mp3'))
+    score_sound: pygame.mixer.Sound = pygame.mixer.Sound(resource_path('assets/sounds/score.mp3'))
+    slap_sound: pygame.mixer.Sound = pygame.mixer.Sound(resource_path('assets/sounds/slap.mp3'))
+    death_sound: pygame.mixer.Sound = pygame.mixer.Sound(resource_path('assets/sounds/death.mp3'))
+    gameover_sound: pygame.mixer.Sound = pygame.mixer.Sound(resource_path('assets/sounds/gameover-sound.mp3'))
+    coin_sound: pygame.mixer.Sound = pygame.mixer.Sound(resource_path("assets/sounds/coin.mp3"))
 
-    def toggle_music():
+    def toggle_music() -> None:
         """
         Toggles the background music between paused and unpaused.
         """
@@ -33,7 +33,7 @@ try:
         else:
             pygame.mixer.music.unpause()
 
-    def play_sound_effect(effect_filename, volume=0.5):
+    def play_sound_effect(effect_filename: str, volume: float=0.5) -> None:
         """
         Plays a one-shot sound effect. For example, a click sound when a button is pressed.
         The filename should be relative to your asset's location.
@@ -42,7 +42,7 @@ try:
         sound_effect.set_volume(volume)
         sound_effect.play()
 
-    def update_sound_fx_volume(volume):
+    def update_sound_fx_volume(volume: float) -> None:
         global sound_fx_volume
         sound_fx_volume = volume
         flap_sound.set_volume(volume)
@@ -51,48 +51,48 @@ try:
         slap_sound.set_volume(volume)
         coin_sound.set_volume(volume)
 
-    def play_flap_sound():
+    def play_flap_sound() -> None:
         """Plays the flap sound if sound is enabled."""
         flap_sound.set_volume(sound_fx_volume)
         if sound_enabled:
             flap_sound.stop()
             flap_sound.play()
 
-    def play_score_sound():
+    def play_score_sound() -> None:
         """Plays the score sound if sound is enabled."""
         score_sound.set_volume(sound_fx_volume)
         if sound_enabled:
             score_sound.stop()
             score_sound.play()
 
-    def play_coin_collect_sound():
+    def play_coin_collect_sound() -> None:
         coin_sound.set_volume(sound_fx_volume)
         if sound_enabled:
             coin_sound.stop()
             coin_sound.play()
 
-    def play_slap_sound():
+    def play_slap_sound() -> None:
         """Plays the slap sound if sound is enabled."""
         slap_sound.set_volume(sound_fx_volume)
         if sound_enabled:
             slap_sound.stop()
             slap_sound.play()
 
-    def play_death_sound():
+    def play_death_sound() -> None:
         """Plays the death sound if sound is enabled."""
         death_sound.set_volume(sound_fx_volume)
         if sound_enabled:
             death_sound.stop()
             death_sound.play()
 
-    def play_gameover_sound():
+    def play_gameover_sound() -> None:
         """Plays the gameover sound if sound is enabled."""
         gameover_sound.set_volume(sound_fx_volume)
         if sound_enabled:
             gameover_sound.stop()
             gameover_sound.play()
 
-    def toggle_sounds():
+    def toggle_sounds() -> None:
         """Plays the scoring effect on or off."""
         global sound_enabled
         sound_enabled = not sound_enabled

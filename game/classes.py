@@ -1,35 +1,37 @@
 import pygame as py
 import pygame_gui as pyg
+from typing import Any, Optional, cast
 
 py.init()
 
 class UITextEntryLinePassword(pyg.elements.UITextEntryLine):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.real_text = ""
-        self.placeholder = ""
-        self.show_password = False
-        self.in_placeholder_mode = True
+        self.real_text: str = ""
+        self.placeholder: str = ""
+        self.show_password: bool = False
+        self.in_placeholder_mode: bool = True
 
-    def set_placeholder(self, text):
-        self.placeholder = text
+    def set_placeholder(self, text: str) -> None:
+        self.placeholder= text
         self.in_placeholder_mode = True
-        self.real_text = ""
+        self.real_text= ""
         super().set_text(text)
 
-    def clear_text_for_input(self):
+    def clear_text_for_input(self) -> None:
         if self.in_placeholder_mode:
             self.in_placeholder_mode = False
             self.real_text = ""
             super().set_text("")
 
-    def process_event(self, event):
+    def process_event(self, event: py.event.Event) -> bool:
         focus_set = self.ui_manager.get_focus_set() if self.ui_manager else None
-        has_focus = focus_set and self in focus_set
+        has_focus = bool(focus_set and self in focus_set)
 
+        rect: Optional[py.Rect] = cast(Optional[py.Rect], getattr(self, "rect", None))
         if self.in_placeholder_mode:
             if event.type == py.MOUSEBUTTONDOWN:
-                if self.rect.collidepoint(event.pos):
+                if rect is not None and rect.collidepoint(event.pos):
                     self.clear_text_for_input()
             elif event.type == py.KEYDOWN:
                 focus_set = self.ui_manager.get_focus_set() if self.ui_manager else None
@@ -53,7 +55,7 @@ class UITextEntryLinePassword(pyg.elements.UITextEntryLine):
 
         return super().process_event(event)
     
-    def update(self, time_delta):
+    def update(self, time_delta: float) -> None:
         if self.in_placeholder_mode:
             super().set_text(self.placeholder)
         else:
@@ -66,26 +68,28 @@ class UITextEntryLinePassword(pyg.elements.UITextEntryLine):
         return "" if self.in_placeholder_mode else self.real_text
     
 class UItextEntryLineWithPlaceholder(pyg.elements.UITextEntryLine):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
-        self.placeholder = ""
-        self.in_placeholder_mode = True
+        self.placeholder: str = ""
+        self.in_placeholder_mode: bool = True
 
-    def set_placeholder(self, text):
+    def set_placeholder(self, text: str) -> None:
         self.placeholder = text
         self.in_placeholder_mode = True
         super().set_text(text)
 
-    def clear_text_for_input(self):
+    def clear_text_for_input(self) -> None:
         if self.in_placeholder_mode:
             self.in_placeholder_mode = False
             super().set_text("")
     
-    def process_event(self, event):
+    def process_event(self, event: py.event.Event) -> bool:
+        rect: Optional[py.Rect] = cast(Optional[py.Rect], getattr(self, "rect", None))
+
         if self.in_placeholder_mode:
             if event.type == py.MOUSEBUTTONDOWN:
                 # Only clear if mouse is inside this input's rectangle
-                if self.rect.collidepoint(event.pos):
+                if rect is not None and rect.collidepoint(event.pos):
                     self.clear_text_for_input()
             elif event.type == py.KEYDOWN:
                 # Only clear if this input is focused
@@ -95,5 +99,5 @@ class UItextEntryLineWithPlaceholder(pyg.elements.UITextEntryLine):
 
         return super().process_event(event)
     
-    def get_Real_text(self):
+    def get_Real_text(self) -> str:
         return "" if self.in_placeholder_mode else self.get_text()

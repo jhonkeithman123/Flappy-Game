@@ -1,23 +1,25 @@
-from game_logic import check_collision, update_score, get_pipe_gap, update_game_speed
 import pygame
 import sys
 import random
 import os
+from typing import Tuple
 
+from game_logic import check_collision, update_score, get_pipe_gap, update_game_speed, PipeDict
 from saves import get_high_score, save_high_score, get_character, get_user_save_directory, load_settings, get_coins, \
     save_coins
 from helper import resource_path, character_images
 from sounds import play_flap_sound, play_death_sound, play_gameover_sound, update_sound_fx_volume
 from config import VERSION, WIDTH, HEIGHT
+from ui import SurfaceType, Rect, Font
 
 pygame.init()
 
 save_directory = get_user_save_directory()
 settings = load_settings(save_directory)
 
-is_muted = settings.get("is_muted", False)
-volume = settings.get("music_volume", 0.5)
-fx_volume = settings.get("sound_fx_volume", 0.5)
+is_muted = bool(settings.get("is_muted", False))
+volume: float = settings.get("music_volume", 0.5)
+fx_volume: float = settings.get("sound_fx_volume", 0.5)
 
 if is_muted:
     pygame.mixer.music.set_volume(0)
@@ -30,72 +32,72 @@ os.environ["SDL_RENDER_DRIVER"] = "software"
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game - Play')
 
-BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
-BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
+BG: SurfaceType = pygame.image.load(resource_path('assets/image/background.png')).convert()
+BGround = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
-coin_size = (30, 30)
-coin_img = pygame.image.load(resource_path("assets/image/coin.png")).convert_alpha()
+coin_size: Tuple[int, int] = (30, 30)
+coin_img: SurfaceType = pygame.image.load(resource_path("assets/image/coin.png")).convert_alpha()
 coin_img = pygame.transform.scale(coin_img, coin_size)
 
-coin_flip_img = pygame.image.load(resource_path("assets/image/coin-flip.png")).convert_alpha()
+coin_flip_img: SurfaceType = pygame.image.load(resource_path("assets/image/coin-flip.png")).convert_alpha()
 coin_flip_img = pygame.transform.scale(coin_flip_img, coin_size)
 
-coin_images = [coin_img, coin_flip_img]
+coin_images: list[SurfaceType] = [coin_img, coin_flip_img]
 
-font = pygame.font.Font(resource_path('assets/font/font.ttf'), 48)
-coinFont = pygame.font.Font(resource_path("assets/font/font.ttf"), 37)
-coinsFont = pygame.font.Font(resource_path("assets/font/font.ttf"), 24)
-fontTxt = pygame.font.Font(resource_path('assets/font/font.ttf'), 25)
+font: Font = pygame.font.Font(resource_path('assets/font/font.ttf'), 48)
+coinFont: Font = pygame.font.Font(resource_path("assets/font/font.ttf"), 37)
+coinsFont: Font = pygame.font.Font(resource_path("assets/font/font.ttf"), 24)
+fontTxt: Font = pygame.font.Font(resource_path('assets/font/font.ttf'), 25)
 
-bird_img = pygame.transform.scale(character_images[get_character()], (70, 50))
-bird_rect = bird_img.get_rect(center=(150, HEIGHT // 2))
-bird_vel = 0
-gravity = 0.5
-flap_strength = -10
+bird_img: SurfaceType = pygame.transform.scale(character_images[get_character()], (70, 50))
+bird_rect: Rect = bird_img.get_rect(center=(150, HEIGHT // 2))
+bird_vel: float = 0
+gravity: float = 0.5
+flap_strength: int = -10
 
-pipe_width = 80
-pipe_height = 500
+pipe_width: int = 80
+pipe_height: int = 500
 
-pipe_top_img = pygame.image.load(resource_path("assets/image/Top.png")).convert_alpha()
+pipe_top_img: SurfaceType = pygame.image.load(resource_path("assets/image/Top.png")).convert_alpha()
 pipe_top_img = pygame.transform.scale(pipe_top_img, (pipe_width, pipe_height))
 
-pipe_bottom_img = pygame.image.load(resource_path("assets/image/Bottom.png")).convert_alpha()
+pipe_bottom_img: SurfaceType = pygame.image.load(resource_path("assets/image/Bottom.png")).convert_alpha()
 pipe_bottom_img = pygame.transform.scale(pipe_bottom_img, (90, pipe_height))
 
-pipe_gap = 300
-pipe_speed = 4
-scroll_speed = 2
-pipe_frequency = 1600
+pipe_gap: int = 300
+pipe_speed: int = 4
+scroll_speed: int = 2
+pipe_frequency: int = 1600
 
-chain1 = pygame.image.load(resource_path("assets/image/chain.png")).convert_alpha()
+chain1: SurfaceType = pygame.image.load(resource_path("assets/image/chain.png")).convert_alpha()
 chain1 = pygame.transform.scale(chain1, (50, 90))
-chain1_rect = chain1.get_rect(center=(WIDTH // 2 - 100, HEIGHT // 2 - 275))
+chain1_rect: Rect = chain1.get_rect(center=(WIDTH // 2 - 100, HEIGHT // 2 - 275))
 
-chain2 = pygame.image.load(resource_path("assets/image/chain.png")).convert_alpha()
+chain2: SurfaceType = pygame.image.load(resource_path("assets/image/chain.png")).convert_alpha()
 chain2 = pygame.transform.scale(chain2, (50, 90))
-chain2_rect = chain2.get_rect(center=(WIDTH // 2 + 100, HEIGHT // 2 - 275))
+chain2_rect: Rect = chain2.get_rect(center=(WIDTH // 2 + 100, HEIGHT // 2 - 275))
 
-retry_img = pygame.image.load(resource_path("assets/image/retry.png")).convert_alpha()
+retry_img: SurfaceType = pygame.image.load(resource_path("assets/image/retry.png")).convert_alpha()
 retry_img = pygame.transform.scale(retry_img, (130, 60))
-retry_img_rect = retry_img.get_rect(center=(WIDTH // 2 + 80, HEIGHT // 2 + 240))
+retry_img_rect: Rect = retry_img.get_rect(center=(WIDTH // 2 + 80, HEIGHT // 2 + 240))
 
-menu_img = pygame.image.load(resource_path("assets/image/Menu.png")).convert_alpha()
+menu_img: SurfaceType = pygame.image.load(resource_path("assets/image/Menu.png")).convert_alpha()
 menu_img = pygame.transform.scale(menu_img, (130, 60))
-menu_img_rect = menu_img.get_rect(center=(WIDTH // 2 - 80, HEIGHT // 2 + 240))
+menu_img_rect: Rect = menu_img.get_rect(center=(WIDTH // 2 - 80, HEIGHT // 2 + 240))
 
-retry_label = fontTxt.render("Retry Button", True, (0, 0, 0))
-menu_label = fontTxt.render("Menu Button", True, (0, 0, 0))
+retry_label: SurfaceType = fontTxt.render("Retry Button", True, (0, 0, 0))
+menu_label: SurfaceType = fontTxt.render("Menu Button", True, (0, 0, 0))
 
-retry_label_rect = retry_label.get_rect(center=(retry_img_rect.centerx, retry_img_rect.top + 73))
-menu_label_rect = menu_label.get_rect(center=(menu_img_rect.centerx, menu_img_rect.top + 73))
+retry_label_rect: Rect = retry_label.get_rect(center=(retry_img_rect.centerx, retry_img_rect.top + 73))
+menu_label_rect: Rect = menu_label.get_rect(center=(menu_img_rect.centerx, menu_img_rect.top + 73))
 
-gameover_platform_img = pygame.image.load(resource_path("assets/image/gameoverPlat.png")).convert_alpha()
+gameover_platform_img: SurfaceType = pygame.image.load(resource_path("assets/image/gameoverPlat.png")).convert_alpha()
 platfrom_width = int(WIDTH * 0.6)
 platform_height = int(platfrom_width * (gameover_platform_img.get_height() / gameover_platform_img.get_width()))
 gameover_platform_img = pygame.transform.scale(gameover_platform_img, (platfrom_width - 130, platform_height - 250))
-gameover_platform_rect = gameover_platform_img.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 30))
+gameover_platform_rect: Rect = gameover_platform_img.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 30))
 
-pipes = []
+pipes: list[PipeDict] = []
 SPAWNPIPE = pygame.USEREVENT
 pygame.time.set_timer(SPAWNPIPE, pipe_frequency)
 
@@ -104,17 +106,17 @@ bg_x2 = WIDTH
 
 clock = pygame.time.Clock()
 
-def create_pipe(score=0):
-    margin = 50
-    current_gap = get_pipe_gap(score)
-    center_y =random.randint(pipe_gap // 2 + margin, HEIGHT - pipe_gap // 2 - margin)
-    coin_y = 0
-    offset = 30
+def create_pipe(score: int = 0) -> PipeDict:
+    margin: int = 50
+    current_gap: int = get_pipe_gap(score)
+    center_y: float = random.randint(pipe_gap // 2 + margin, HEIGHT - pipe_gap // 2 - margin)
+    coin_y: float = 0
+    offset: int = 30
 
-    top_pipe = pipe_top_img.get_rect(midbottom=(WIDTH + 100, center_y - current_gap // 2))
-    bottom_pipe = pipe_bottom_img.get_rect(midtop=(WIDTH + 100, center_y + current_gap // 2))
+    top_pipe: Rect = pipe_top_img.get_rect(midbottom=(WIDTH + 100, center_y - current_gap // 2))
+    bottom_pipe: Rect = pipe_bottom_img.get_rect(midtop=(WIDTH + 100, center_y + current_gap // 2))
 
-    placement = random.choice(["center", "top", "bottom", "side"])
+    placement: str = random.choice(["center", "top", "bottom", "side"])
     if placement == "center":
         coin_y = center_y
     elif placement == "top":
@@ -124,7 +126,7 @@ def create_pipe(score=0):
     elif placement == "side":
         coin_y = random.choice([center_y - current_gap / 2 + offset, center_y + current_gap / 2 - offset])
 
-    coin_rect = coin_img.get_rect(center=(WIDTH + 100, int(coin_y)))
+    coin_rect: Rect = coin_img.get_rect(center=(WIDTH + 100, int(coin_y)))
 
     return {
         "top": top_pipe,
@@ -134,8 +136,8 @@ def create_pipe(score=0):
         "coin_collected": False
     }
 
-def move_pipes(pipe_list):
-    new_pipes = []
+def move_pipes(pipe_list: list[PipeDict]) -> list[PipeDict]:
+    new_pipes: list[PipeDict] = []
     for pipe in pipe_list:
         pipe["top"].centerx -= pipe_speed
         pipe["bottom"].centerx -= pipe_speed
@@ -145,7 +147,7 @@ def move_pipes(pipe_list):
     return new_pipes
 
 
-def draw_pipes(pipe_list):
+def draw_pipes(pipe_list: list[PipeDict]) -> None:
     for pipe in pipe_list:
         SCREEN.blit(pipe_top_img, pipe["top"])
         SCREEN.blit(pipe_bottom_img, pipe["bottom"])
@@ -156,7 +158,7 @@ def draw_pipes(pipe_list):
             current_coin_img = coin_images[frame_index]
             SCREEN.blit(current_coin_img, pipe["coin"])
 
-def reset_game():
+def reset_game() -> None:
     global bird_rect, bird_vel, pipes, bg_x1, bg_x2
     bird_rect = bird_img.get_rect(center=(150, HEIGHT // 2))
     bird_vel = 0
@@ -165,43 +167,43 @@ def reset_game():
     bg_x2 = WIDTH
     pygame.time.set_timer(SPAWNPIPE, pipe_frequency)
 
-coins_saved = False
-def draw_gameover(score, coins):
+coins_saved: bool = False
+def draw_gameover(score: int, coins: int) -> None:
     global coins_saved
 
     SCREEN.blit(chain1, chain1_rect)
     SCREEN.blit(chain2, chain2_rect)
     SCREEN.blit(gameover_platform_img, gameover_platform_rect)
 
-    text_x = gameover_platform_rect.centerx
-    text_y = gameover_platform_rect.top + 30
-    game_over_text = font.render("Game Over", True, (0, 0, 0))
-    text_rect = game_over_text.get_rect(center=(text_x, text_y))
+    text_x: int = gameover_platform_rect.centerx
+    text_y: int = gameover_platform_rect.top + 30
+    game_over_text: SurfaceType = font.render("Game Over", True, (0, 0, 0))
+    text_rect: Rect = game_over_text.get_rect(center=(text_x, text_y))
     SCREEN.blit(game_over_text, text_rect)
 
-    player_coin = get_coins()
+    player_coin: int = get_coins()
     if not coins_saved:
         total_coins = player_coin + coins
         save_coins(total_coins)
         coins_saved = True
 
-    score_text = font.render(f"Score: {score}", True, (0, 0, 0))
-    high_score_text = font.render(f"High Score: {get_high_score()}", True, (0, 0, 0))
-    coins_text = coinFont.render(f"Coins collected: {coins}", True, (0, 0, 0))
-    total_coin = coinsFont.render(f" Total {player_coin} + {coins} = {player_coin + coins} Coins", True, (0, 0, 0))
+    score_text: SurfaceType = font.render(f"Score: {score}", True, (0, 0, 0))
+    high_score_text: SurfaceType = font.render(f"High Score: {get_high_score()}", True, (0, 0, 0))
+    coins_text: SurfaceType = coinFont.render(f"Coins collected: {coins}", True, (0, 0, 0))
+    total_coin: SurfaceType = coinsFont.render(f" Total {player_coin} + {coins} = {player_coin + coins} Coins", True, (0, 0, 0))
 
-    score_rect = score_text.get_rect(center=(gameover_platform_rect.centerx - 45, gameover_platform_rect.top + 90))
-    high_score_rect = high_score_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 135))
-    coins_text_rect = coins_text.get_rect(center=(gameover_platform_rect.centerx - 5, gameover_platform_rect.top + 180))
-    total_coin_rect = total_coin.get_rect(center=(gameover_platform_rect.centerx - 2, gameover_platform_rect.top + 225))
+    score_rect: Rect = score_text.get_rect(center=(gameover_platform_rect.centerx - 45, gameover_platform_rect.top + 90))
+    high_score_rect: Rect = high_score_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 135))
+    coins_text_rect: Rect = coins_text.get_rect(center=(gameover_platform_rect.centerx - 5, gameover_platform_rect.top + 180))
+    total_coin_rect: Rect = total_coin.get_rect(center=(gameover_platform_rect.centerx - 2, gameover_platform_rect.top + 225))
 
-    retry_text = fontTxt.render("'R' or Retry Button - Retry", True, (0, 0, 0))
-    menu_text = fontTxt.render("'M' or Menu Button - Menu", True, (0, 0, 0))
-    quit_text = fontTxt.render("'Q' - Quit (PC only)", True, (0, 0, 0))
+    retry_text: SurfaceType = fontTxt.render("'R' or Retry Button - Retry", True, (0, 0, 0))
+    menu_text: SurfaceType = fontTxt.render("'M' or Menu Button - Menu", True, (0, 0, 0))
+    quit_text: SurfaceType = fontTxt.render("'Q' - Quit (PC only)", True, (0, 0, 0))
 
-    retry_rect = retry_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 270))
-    menu_rect = menu_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 310))
-    quit_rect = quit_text.get_rect(center=(gameover_platform_rect.centerx - 35, gameover_platform_rect.top + 350))
+    retry_rect: Rect = retry_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 270))
+    menu_rect: Rect = menu_text.get_rect(center=(gameover_platform_rect.centerx, gameover_platform_rect.top + 310))
+    quit_rect: Rect = quit_text.get_rect(center=(gameover_platform_rect.centerx - 35, gameover_platform_rect.top + 350))
 
     SCREEN.blit(score_text, score_rect)
     SCREEN.blit(high_score_text, high_score_rect)
@@ -219,8 +221,8 @@ def draw_gameover(score, coins):
     SCREEN.blit(quit_text, quit_rect)
 
 def draw_background():
-    SCREEN.blit(BG, (bg_x1, 0))
-    SCREEN.blit(BG, (bg_x2, 0))
+    SCREEN.blit(BGround, (bg_x1, 0))
+    SCREEN.blit(BGround, (bg_x2, 0))
 
 def draw_version():
     transparent_surface = pygame.Surface((200, 50), pygame.SRCALPHA)
@@ -230,7 +232,7 @@ def draw_version():
     transparent_surface.blit(version_text, (version_text.get_width() - 25, 0))
     SCREEN.blit(transparent_surface, (WIDTH - transparent_surface.get_width() - 20, 20))
 
-def rotate_bird(bird_rect):
+def rotate_bird(bird_rect: Rect) -> None:
     angle = max(-30, min(30, -bird_vel * 3))
     old_center = bird_rect.center
     bird_img = pygame.transform.scale(character_images[get_character()], (70, 50))
@@ -239,12 +241,12 @@ def rotate_bird(bird_rect):
     rotated_bird_rect = rotated_bird.get_rect(center=bird_rect.center)
     SCREEN.blit(rotated_bird, rotated_bird_rect)
 
-def calculate_chain_offsets():
+def calculate_chain_offsets() -> Tuple[int, int]:
     chain1_offset = chain1_rect.y - gameover_platform_rect.y
     chain2_offset = chain2_rect.y - gameover_platform_rect.y
     return chain1_offset, chain2_offset
 
-def run_game(state):
+def run_game(state: dict[str, str]) -> dict[str, str]:
     """
     Runs the main game loop.
 
@@ -263,13 +265,13 @@ def run_game(state):
 
     reset_game()
 
-    countdown_font = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
-    countdown = 3
-    countdown_start = pygame.time.get_ticks()
+    countdown_font: Font = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
+    countdown: int = 3
+    countdown_start: int = pygame.time.get_ticks()
 
-    gameover_y = -platform_height
-    fall_speed = 10
-    gameover_anim_done = False
+    gameover_y: int = -platform_height
+    fall_speed: int = 10
+    gameover_anim_done: bool = False
 
     chain1_offset, chain2_offset = calculate_chain_offsets()
 
@@ -374,7 +376,8 @@ def run_game(state):
                 print("Player collected coin")
 
             if collision:
-                if score >= 30 or (get_high_score() - score) <= 5:
+                high_score = get_high_score()
+                if score >= 30 or (int(high_score) - score) <= 5:
                     pygame.mixer.music.stop()
                     play_death_sound()
                     play_gameover_sound()

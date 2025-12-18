@@ -2,30 +2,31 @@ import sys
 import pygame
 from helper import resource_path
 from saves import load_settings, save_settings
-from sounds import play_sound_effect, update_sound_fx_volume
+from sounds import update_sound_fx_volume
 from config import VERSION, WIDTH, HEIGHT
+from ui import SurfaceType, Rect, Font
 
-font = pygame.font.Font(resource_path('assets/font/font.ttf'), 40)
-BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
-BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
+font: Font = pygame.font.Font(resource_path('assets/font/font.ttf'), 40)
+BG: SurfaceType = pygame.image.load(resource_path('assets/image/background.png')).convert()
+BGround = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
-mute_icon = pygame.image.load(resource_path('assets/image/music-close.png')).convert_alpha()
-unmute_icon = pygame.image.load(resource_path('assets/image/music-open.png')).convert_alpha()
+mute_icon: SurfaceType = pygame.image.load(resource_path('assets/image/music-close.png')).convert_alpha()
+unmute_icon: SurfaceType= pygame.image.load(resource_path('assets/image/music-open.png')).convert_alpha()
 
 mute_icon = pygame.transform.scale(mute_icon, (120, 60))
 unmute_icon = pygame.transform.scale(unmute_icon, (120, 60))
 
-platform = pygame.image.load(resource_path('assets/image/SettingPlat.png')).convert_alpha()
-platform_rect = platform.get_rect(center=(WIDTH - 395, HEIGHT - 300))
+platform: SurfaceType = pygame.image.load(resource_path('assets/image/SettingPlat.png')).convert_alpha()
+platform_rect: Rect = platform.get_rect(center=(WIDTH - 395, HEIGHT - 300))
 
-close_img = pygame.image.load(resource_path("assets/image/X.png")).convert_alpha()
+close_img: SurfaceType = pygame.image.load(resource_path("assets/image/X.png")).convert_alpha()
 close_img = pygame.transform.scale(close_img, (40, 40))
-close_img_rect = close_img.get_rect(center=(platform_rect.centerx + 180, platform_rect.top + 45))
+close_img_rect: Rect = close_img.get_rect(center=(platform_rect.centerx + 180, platform_rect.top + 45))
 
-mute_button_rect = mute_icon.get_rect(center=(WIDTH - 100, HEIGHT - 100))
+mute_button_rect: Rect = mute_icon.get_rect(center=(WIDTH - 100, HEIGHT - 100))
 
 class Slider:
-    def __init__(self, x, y, width, min_value=0, max_value=1, default_value=0.5):
+    def __init__(self, x: float, y: float, width: int, min_value: float =0, max_value: float =1, default_value: float =0.5) -> None:
         """
         Creates a draggable slider to adjust values.
 
@@ -47,7 +48,7 @@ class Slider:
         self.knob_x = self.x + (self.value * width)
         self.dragging = False
 
-    def handle_event(self, event):
+    def handle_event(self, event: pygame.event.Event) -> None:
         """Handles mouse interaction with the slider."""
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -70,18 +71,18 @@ class Slider:
                 self.knob_x = max(self.x, min(event.pos[0], self.x + self.width))
                 self.value = (self.knob_x - self.x) / self.width
 
-    def draw(self, screen):
+    def draw(self, screen: SurfaceType) -> None:
         """Draws the slider."""
         pygame.draw.rect(screen, (180, 180, 180), self.slider_bar)
         pygame.draw.circle(screen, (255, 0, 0), (self.knob_x, self.y), self.knob_radius)
 
 
-def draw_settings_panel(screen, rect):
+def draw_settings_panel(screen: SurfaceType, rect: Rect) -> None:
     """
     Draws the settings panel on the given screen.
     The panel uses a background image and a dedicated platform image.
     """
-    screen.blit(BG, (0, 0))
+    screen.blit(BGround, (0, 0))
 
     platform = pygame.image.load(resource_path('assets/image/SettingPlat.png')).convert_alpha()
     platform_rect = platform.get_rect(center=(WIDTH - 395, HEIGHT - 300))
@@ -95,7 +96,7 @@ def draw_settings_panel(screen, rect):
     version_text = font.render(VERSION, True, (255, 255, 255))
     screen.blit(version_text, (WIDTH - version_text.get_width() - 20, 20))
 
-def handle_settings_events(state, save_directory):
+def handle_settings_events(state: dict[str, str], save_directory: str):
     """
     Runs the settings panel loop.
 
@@ -106,22 +107,22 @@ def handle_settings_events(state, save_directory):
     Returns the updated state.
     """
     state["current"] = "settings"
-    running = True
-    panel_rect = pygame.Rect(200, 150, 400, 300)
+    running: bool = True
+    panel_rect: Rect = pygame.Rect(200, 150, 400, 300)
     clock = pygame.time.Clock()
 
-    is_muted = False
-    previous_volume = 0.5
-    previous_fx_volume = 0.5
+    is_muted: bool = False
+    previous_volume: float = 0.5
+    previous_fx_volume: float = 0.5
 
-    volume_slider = Slider(300, 250, 200, min_value=0, max_value=1, default_value=0.5)
-    sound_fx_slider = Slider(300, 340, 200, min_value=0, max_value=1, default_value=0.5)
+    volume_slider: Slider = Slider(300, 250, 200, min_value=0, max_value=1, default_value=0.5)
+    sound_fx_slider: Slider = Slider(300, 340, 200, min_value=0, max_value=1, default_value=0.5)
 
     settings = load_settings(save_directory)
     if settings:
         volume_slider.value = settings.get("music_volume", previous_volume)
         sound_fx_slider.value = settings.get("sound_fx_volume", previous_fx_volume)
-        is_muted = settings.get("is_muted", False)
+        is_muted = bool(settings.get("is_muted", False))
 
         volume_slider.knob_x = volume_slider.x + (volume_slider.value * volume_slider.width)
         sound_fx_slider.knob_x = sound_fx_slider.x + (sound_fx_slider.value * sound_fx_slider.width)
@@ -206,7 +207,11 @@ def handle_settings_events(state, save_directory):
 
         update_sound_fx_volume(sound_fx_slider.value)
 
-        screen = pygame.display.get_surface()
+        raw_screen = pygame.display.get_surface()
+        if raw_screen is None:
+            raise RuntimeError("Display surface not initialized")
+
+        screen: SurfaceType = raw_screen
         screen.fill((0, 0, 0))
         draw_settings_panel(screen, panel_rect)
         volume_slider.draw(screen)
@@ -221,7 +226,7 @@ def handle_settings_events(state, save_directory):
 
         pygame.display.flip()
 
-    new_settings = {
+    new_settings: dict[str, float | bool] = {
         "music_volume": volume_slider.value,
         "sound_fx_volume": sound_fx_slider.value,
         "is_muted": is_muted

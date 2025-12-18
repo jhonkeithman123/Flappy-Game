@@ -1,10 +1,18 @@
+import os
+
+# Forcing SDL to use software and avoid problematic GLX paths
+os.environ["SDL_RENDER_DRIVER"] = "software"
+os.environ["SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR"] = "0"
+os.environ.setdefault("SDL_VIDEODRIVER", "x11") # defaults to "x11" or "wayland" 
+
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
-import os
 import pygame
 import sys
-from saves import reset_save_directory_config, get_user_save_directory, get_character, load_settings
+from typing import Dict
+
+from saves import get_user_save_directory, get_character, load_settings
 from shop import character_shop
 from play import run_game
 from settings import handle_settings_events
@@ -34,7 +42,7 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_caption('Flappy Game')
 
 BG = pygame.image.load(resource_path('assets/image/background.png')).convert()
-BG = pygame.transform.scale(BG, (WIDTH, HEIGHT))
+BGround = pygame.transform.scale(BG, (WIDTH, HEIGHT))
 
 FONT = pygame.font.Font(resource_path("assets/font/font.ttf"), 64)
 font = pygame.font.Font(resource_path("assets/font/font.ttf"), 30)
@@ -82,8 +90,8 @@ def draw_menu():
     account_text = font.render("Account", True, (0, 0, 128))
     account_text_rect = account_text.get_rect(center=(account_rect.centerx - 2, account_rect.top - 20))
 
-    SCREEN.blit(BG, (bg_x, 0))
-    SCREEN.blit(BG, (bg_x + WIDTH, 0))
+    SCREEN.blit(BGround, (bg_x, 0))
+    SCREEN.blit(BGround, (bg_x + WIDTH, 0))
 
     character_image = pygame.transform.scale(character_images[get_character()], (80, 60))
     character_model_rotated = pygame.transform.rotate(character_image, angle)
@@ -107,7 +115,7 @@ def draw_menu():
 
     pygame.display.flip()
 
-def main_menu(state):
+def main_menu(state: Dict[str, str]) -> Dict[str, str]:
     """
         Displays the main menu and updates the state based on user input.
 
@@ -158,19 +166,19 @@ def main_menu(state):
 if __name__ == "__main__":
     user_save_directory = get_user_save_directory()
     # reset_save_directory_config()
-    state = {"current": "menu"}
+    state: Dict[str, str] = {"current": "menu"}
     while True:
         if state["current"] == "menu":
             state = main_menu(state)
         elif state["current"] == "playing":
             state = run_game(state)
         elif state["current"] == "settings":
-            state = handle_settings_events(state, save_directory=user_save_directory)
+            state = handle_settings_events(state, save_directory=str(user_save_directory))
         elif state["current"] == "gameover":
             state["current"] = "menu"
         elif state["current"] == "shop":
             state = character_shop(state)
         elif state["current"] == "account":
-            state["current"] = handle_account(state)
+            state = handle_account(state)
         else:
             state["current"] = "menu"

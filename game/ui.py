@@ -1,25 +1,32 @@
-import pygame
+from __future__ import annotations
+
 import pygame as py
 import pygame_gui as pyg
 import requests
+from typing import Dict, Tuple
+
 from config import WIDTH, HEIGHT
 from helper import resource_path
 from classes import UItextEntryLineWithPlaceholder, UITextEntryLinePassword
 
+type SurfaceType = py.Surface
+type Rect = py.Rect
+type Font = py.font.Font
+
 py.init()
-screen = py.display.set_mode((WIDTH, HEIGHT))
+screen: SurfaceType = py.display.set_mode((WIDTH, HEIGHT))
 py.display.set_caption("Flappy Game - Login")
 
-manager = pyg.UIManager((WIDTH, HEIGHT))
+manager: pyg.UIManager = pyg.UIManager((WIDTH, HEIGHT))
 
-font = py.font.Font(resource_path("assets/font/font.ttf"), 24)
+font: Font = py.font.Font(resource_path("assets/font/font.ttf"), 24)
 
-def draw_text(surface, text, position, color=(255, 255, 255)):
+def draw_text(surface: SurfaceType, text: str, position: Tuple[int, int], color: Tuple[int, int, int]=(255, 255, 255)):
     """Helper function to render text."""
     label = font.render(text, True, color)
     surface.blit(label, position)
 
-def draw_centered_text(surface, text, center_position, font, color=(255, 255, 255)):
+def draw_centered_text(surface: SurfaceType, text: str, center_position: Tuple[int, int], font: Font, color: Tuple[int, int, int]=(255, 255, 255)):
     """
     Renders and draws the given text on the surface,
     centered at the specified (x, y) coordinate.
@@ -28,28 +35,28 @@ def draw_centered_text(surface, text, center_position, font, color=(255, 255, 25
     text_rect = text_surface.get_rect(center=center_position)
     surface.blit(text_surface, text_rect)
 
-username_input = UItextEntryLineWithPlaceholder(
+username_input: UItextEntryLineWithPlaceholder = UItextEntryLineWithPlaceholder(
     relative_rect=py.Rect((WIDTH // 2 - 100, HEIGHT // 2 - 110), (200, 40)),
     manager=manager
 )
-user_placeholder = "Enter Username"
+user_placeholder: str = "Enter Username"
 username_input.set_placeholder(user_placeholder)
 
-email_input = UItextEntryLineWithPlaceholder(
+email_input: UItextEntryLineWithPlaceholder = UItextEntryLineWithPlaceholder(
     relative_rect=py.Rect((WIDTH // 2 - 100, HEIGHT // 2 - 70), (200, 40)),
     manager=manager
 )
-email_placeholder = "Enter Email"
+email_placeholder: str = "Enter Email"
 email_input.set_placeholder(email_placeholder)
 
-password_input = UITextEntryLinePassword(
+password_input: UITextEntryLinePassword = UITextEntryLinePassword(
     relative_rect=py.Rect((WIDTH // 2 - 100, HEIGHT // 2 - 30), (200, 40)),
     manager=manager
 )
-password_placeholder = "Enter Password"
+password_placeholder: str = "Enter Password"
 password_input.set_placeholder(password_placeholder)
 
-login_button = pyg.elements.UIButton(
+login_button: pyg.elements.UIButton = pyg.elements.UIButton(
     relative_rect=py.Rect((WIDTH // 2 - 50, HEIGHT // 2 + 20), (100, 40)),
     text="Login",
     manager=manager
@@ -60,28 +67,29 @@ signup_button = pyg.elements.UIButton(
     manager=manager
 )
 
-close_img = py.image.load(resource_path("assets/image/X.png"))
+close_img: SurfaceType = py.image.load(resource_path("assets/image/X.png"))
 close_img = py.transform.scale(close_img, (30, 30))
-close_rect = close_img.get_rect(midtop=(20, 5))
+close_rect: Rect = close_img.get_rect(midtop=(20, 5))
 
-eye_img = py.image.load(resource_path("assets/image/eye.png"))
+eye_img: SurfaceType = py.image.load(resource_path("assets/image/eye.png"))
 eye_img = py.transform.scale(eye_img, (30, 30))
 
-eye_button = pyg.elements.UIButton(
+eye_button: pyg.elements.UIButton = pyg.elements.UIButton(
     relative_rect=py.Rect((WIDTH // 2 + 110, HEIGHT // 2 - 30), (30, 30)),
     text='',
     manager=manager,
     tool_tip_text="Show/Hide Password"
 )
 
-message = ""
-message_time = 0
-message_color = (255, 0, 0)  # Red color for error messages
+message: str = ""
+message_time: float = 0
+message_color: Tuple[int, int, int] = (255, 0, 0)  # Red color for error messages
 
-def handle_account(state):
-    global message, message_time
-    clock = py.time.Clock()
-    running = True
+def handle_account(state: Dict[str, str]) -> Dict[str, str]:
+    global message, message_time, message_color
+
+    clock: py.time.Clock = py.time.Clock()
+    running: bool = True
 
     while running:
         time_delta = clock.tick(60) / 1000.0
