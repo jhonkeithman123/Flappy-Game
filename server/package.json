@@ -2,7 +2,7 @@
   "name": "server",
   "private": true,
   "scripts": {
-    "dev": "bun --watch app.ts"
+    "dev": "clear && bun --watch app.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -11,6 +11,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "cors": "^2.8.5",

@@ -17,7 +17,16 @@
       <h1 class="Text">
         This server is not accessible to a browser, please close this page
       </h1>
+      <p class="redirect">Redirecting in 3 seconds...</p>
     </div>
-    <script src="index.js"></script>
+    <script>
+      setTimeout(() => {
+        window.close()
+      }, 2000)
+
+      setTimeout(() => {
+        window.location.href = 'about:blank'
+      }, 3000)
+    </script>
   </body>
 </html>

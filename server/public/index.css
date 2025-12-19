@@ -114,6 +114,13 @@ body {
   z-index: 1000;
 }
 
+.redirect {
+  margin-top: 20px;
+  font-size: 14px;
+  font-family: 'flappy', sans-serif;
+  color: rgb(54, 54, 54);
+}
+
 @keyframes moveClouds {
   0% {
     transform: translateY(0px);
