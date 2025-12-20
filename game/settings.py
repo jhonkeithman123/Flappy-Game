@@ -3,27 +3,56 @@ import pygame
 from helper import resource_path
 from saves import load_settings, save_settings
 from sounds import update_sound_fx_volume
-from config import VERSION, WIDTH, HEIGHT
+import config
+from config import VERSION, RESOLUTIONS
 from ui import SurfaceType, Rect, Font
 
 font: Font = pygame.font.Font(resource_path('assets/font/font.ttf'), 40)
 BG: SurfaceType = pygame.image.load(resource_path('assets/image/background.png')).convert()
-BGround = pygame.transform.scale(BG, (WIDTH, HEIGHT))
+BGround: SurfaceType = pygame.Surface((config.WIDTH, config.HEIGHT))
 
-mute_icon: SurfaceType = pygame.image.load(resource_path('assets/image/music-close.png')).convert_alpha()
-unmute_icon: SurfaceType= pygame.image.load(resource_path('assets/image/music-open.png')).convert_alpha()
+close_img: SurfaceType = pygame.Surface((config.WIDTH, config.HEIGHT))
+close_img_rect: Rect = close_img.get_rect()
 
-mute_icon = pygame.transform.scale(mute_icon, (120, 60))
-unmute_icon = pygame.transform.scale(unmute_icon, (120, 60))
+mute_icon: SurfaceType = pygame.Surface((config.WIDTH, config.HEIGHT))
+unmute_icon: SurfaceType= pygame.Surface((config.WIDTH, config.HEIGHT))
 
-platform: SurfaceType = pygame.image.load(resource_path('assets/image/SettingPlat.png')).convert_alpha()
-platform_rect: Rect = platform.get_rect(center=(WIDTH - 395, HEIGHT - 300))
+platform: SurfaceType = pygame.Surface((config.WIDTH, config.HEIGHT))
+platform_rect: Rect = platform.get_rect()
 
-close_img: SurfaceType = pygame.image.load(resource_path("assets/image/X.png")).convert_alpha()
-close_img = pygame.transform.scale(close_img, (40, 40))
-close_img_rect: Rect = close_img.get_rect(center=(platform_rect.centerx + 180, platform_rect.top + 45))
+mute_button_rect: Rect = mute_icon.get_rect()
 
-mute_button_rect: Rect = mute_icon.get_rect(center=(WIDTH - 100, HEIGHT - 100))
+def rebuild_settings_assets() -> None:
+    """Rescale background and platform for current resolution."""
+    global BGround, platform, platform_rect, mute_icon, unmute_icon, close_img, close_img_rect, mute_button_rect
+    BGround = pygame.transform.scale(BG, (config.WIDTH, config.HEIGHT))
+
+    mute_icon_local: SurfaceType = pygame.image.load(resource_path("assets/image/music-close.png")).convert_alpha()
+    unmute_icon_local: SurfaceType = pygame.image.load(resource_path("assets/image/music-open.png")).convert_alpha()
+    mute_icon_local = pygame.transform.scale(mute_icon_local, (120, 60))
+    unmute_icon_local = pygame.transform.scale(unmute_icon_local, (120, 60))
+
+    platform_local: SurfaceType = pygame.image.load(resource_path("assets/image/SettingPlat.png")).convert_alpha()
+    platform_rect_local: Rect = platform_local.get_rect(center=(config.WIDTH - 395, config.HEIGHT - 300))
+
+    close_img_local: SurfaceType = pygame.image.load(resource_path("assets/image/X.png")).convert_alpha()
+    close_img_local = pygame.transform.scale(close_img_local, (40, 40))
+    close_img_rect_local: Rect = close_img_local.get_rect(center=(platform_rect_local.centerx + 180, platform_rect_local.top + 45))
+
+    mute_button_rect_local: Rect = mute_icon_local.get_rect(center=(config.WIDTH - 100, config.HEIGHT - 100))
+
+    globals().update(
+        BGround=BGround,
+        platform=platform_local,
+        platform_rect=platform_rect_local,
+        close_img=close_img_local,
+        close_img_rect=close_img_rect_local,
+        mute_icon=mute_icon_local,
+        unmute_icon=unmute_icon_local,
+        mute_button_rect=mute_button_rect_local,
+    )
+
+rebuild_settings_assets()
 
 class Slider:
     def __init__(self, x: float, y: float, width: int, min_value: float =0, max_value: float =1, default_value: float =0.5) -> None:
@@ -85,7 +114,7 @@ def draw_settings_panel(screen: SurfaceType, rect: Rect) -> None:
     screen.blit(BGround, (0, 0))
 
     platform = pygame.image.load(resource_path('assets/image/SettingPlat.png')).convert_alpha()
-    platform_rect = platform.get_rect(center=(WIDTH - 395, HEIGHT - 300))
+    platform_rect = platform.get_rect(center=(config.WIDTH - 395, config.HEIGHT - 300))
     screen.blit(platform, platform_rect)
     screen.blit(close_img, close_img_rect)
 
@@ -94,7 +123,7 @@ def draw_settings_panel(screen: SurfaceType, rect: Rect) -> None:
     screen.blit(title, title_rect)
 
     version_text = font.render(VERSION, True, (255, 255, 255))
-    screen.blit(version_text, (WIDTH - version_text.get_width() - 20, 20))
+    screen.blit(version_text, (config.WIDTH - version_text.get_width() - 20, 20))
 
 def handle_settings_events(state: dict[str, str], save_directory: str):
     """
@@ -117,6 +146,15 @@ def handle_settings_events(state: dict[str, str], save_directory: str):
 
     volume_slider: Slider = Slider(300, 250, 200, min_value=0, max_value=1, default_value=0.5)
     sound_fx_slider: Slider = Slider(300, 340, 200, min_value=0, max_value=1, default_value=0.5)
+
+    # Build resolution buttons
+    res_buttons: list[tuple[pygame.Rect, tuple[int, int]]] = []
+    btn_w, btn_h = 150, 40
+    start_x, start_y = 80, 200
+    gap_y = 50
+    for i, (w, h) in enumerate(RESOLUTIONS):
+        rect = pygame.Rect(start_x, start_y + i * gap_y, btn_w, btn_h)
+        res_buttons.append((rect, (w, h)))
 
     settings = load_settings(save_directory)
     if settings:
@@ -144,57 +182,50 @@ def handle_settings_events(state: dict[str, str], save_directory: str):
                 if event.key == pygame.K_ESCAPE:
                     running = False
                     state["current"] = "menu"
-                elif event.key == pygame.K_m:
-                    is_muted = not is_muted
-                    if is_muted:
-                        previous_volume = volume_slider.value
-                        previous_fx_volume = sound_fx_slider.value
 
-                        volume_slider.value = 0
-                        sound_fx_slider.value = 0
-
-                        volume_slider.knob_x = volume_slider.x
-                        sound_fx_slider.knob_x = sound_fx_slider.x
-
-                        pygame.mixer.music.set_volume(0)
-                        update_sound_fx_volume(0)
-                    else:
-                        volume_slider.value = previous_volume
-                        sound_fx_slider.value = previous_fx_volume
-
-                        volume_slider.knob_x = volume_slider.x + previous_volume * volume_slider.width
-                        sound_fx_slider.knob_x = sound_fx_slider.x + previous_volume * volume_slider.width
-
-                        pygame.mixer.music.set_volume(previous_volume)
-                        update_sound_fx_volume(previous_fx_volume)
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                mouse_pos = event.pos
-                if mute_button_rect.collidepoint(mouse_pos):
-                    is_muted = not is_muted
-                    if is_muted:
-                        previous_volume = volume_slider.value
-                        previous_fx_volume = sound_fx_slider.value
+                    mouse_pos = event.pos
+                    
+                    if mute_button_rect.collidepoint(mouse_pos):
+                        is_muted = not is_muted
+                        if is_muted:
+                            previous_volume = volume_slider.value
+                            previous_fx_volume = sound_fx_slider.value
 
-                        volume_slider.value = 0
-                        sound_fx_slider.value = 0
+                            volume_slider.value = 0
+                            sound_fx_slider.value = 0
 
-                        volume_slider.knob_x = volume_slider.x
-                        sound_fx_slider.knob_x = sound_fx_slider.x
+                            volume_slider.knob_x = volume_slider.x
+                            sound_fx_slider.knob_x = sound_fx_slider.x
 
-                        pygame.mixer.music.set_volume(0)
-                        update_sound_fx_volume(0)
-                    else:
-                        volume_slider.value = previous_volume
-                        sound_fx_slider.value = previous_fx_volume
+                            pygame.mixer.music.set_volume(0)
+                            update_sound_fx_volume(0)
+                        else:
+                            volume_slider.value = previous_volume
+                            sound_fx_slider.value = previous_fx_volume
 
-                        volume_slider.knob_x = volume_slider.x + previous_volume * volume_slider.width
-                        sound_fx_slider.knob_x = sound_fx_slider.x + previous_volume * volume_slider.width
+                            volume_slider.knob_x = volume_slider.x + previous_volume * volume_slider.width
+                            sound_fx_slider.knob_x = sound_fx_slider.x + previous_volume * volume_slider.width
 
-                        pygame.mixer.music.set_volume(previous_volume)
-                        update_sound_fx_volume(previous_fx_volume)
-                elif close_img_rect.collidepoint(mouse_pos):
-                    state["current"] = "menu"
-                    running = False
+                            pygame.mixer.music.set_volume(previous_volume)
+                            update_sound_fx_volume(previous_fx_volume)
+
+                    elif close_img_rect.collidepoint(mouse_pos):
+                        state["current"] = "menu"
+                        running = False
+
+                    # Resolution buttons
+                    for btn_rect, (w, h) in res_buttons:
+                        if btn_rect.collidepoint(mouse_pos):
+                            config.WIDTH, config.HEIGHT = w, h
+                            pygame.display.set_mode((w, h), pygame.DOUBLEBUF | pygame.RESIZABLE)
+                            rebuild_settings_assets()
+                            # Re-center sliders after resize
+                            volume_slider.x, volume_slider.y = 300, 250
+                            sound_fx_slider.x, sound_fx_slider.y = 300, 340
+                            volume_slider.slider_bar.topleft = (volume_slider.x, volume_slider.y)
+                            sound_fx_slider.slider_bar.topleft = (sound_fx_slider.x, sound_fx_slider.y)
+            
 
             volume_slider.handle_event(event)
             sound_fx_slider.handle_event(event)

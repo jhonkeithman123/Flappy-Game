@@ -4,5 +4,6 @@
   "prettier.useTabs": false,
   "python.defaultInterpreterPath": "/home/keith/miniconda3/envs/flappy_kivy/bin/python",
   "python.linting.enabled": true,
-  "python.linting.pylintEnabled": true
+  "python.linting.pylintEnabled": true,
+  "python.REPL.enableREPLSmartSend": false
 }

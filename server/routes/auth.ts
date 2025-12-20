@@ -19,14 +19,19 @@ router.get('/', (req: Request, res: Response) => {
 })
 
 router.post('/login', (req: Request, res: Response) => {
-  const { username, email, password } = req.body
+  const { identifier, password } = req.body
   console.log(
     `These are the data in the req.body\n
-     username: ${username}\n
-     email: ${email}\n
+     identifier: ${identifier}\n
      password: ${password}`
   )
-  res.json({ message: 'Login recieved' })
+
+  if (!identifier || !password) {
+    return res.status(400).json({ error: 'Missing [username/email], password' })
+  }
+
+  console.log(`Login attempt - identifier: ${identifier}`)
+  res.json({ message: 'Login successful', username: identifier })
 })
 
 router.post('/signup', (req: Request, res: Response) => {
@@ -37,7 +42,13 @@ router.post('/signup', (req: Request, res: Response) => {
      email: ${email}
      password: ${password}`
   )
-  res.json({ message: 'Signup recieved' })
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: 'Missing required fields' })
+  }
+
+  console.log(`Signup attempt - username: ${username}, email: ${email}`)
+  res.json({ message: 'Signup successful', username })
 })
 
 export default router
